@@ -169,9 +169,38 @@ cd sandbox && ./scripts/verify_e4.sh   # π_H usefulness + π_A sentinel + monit
 > with clear seams for API/vLLM backends. The self-test verifies the machinery;
 > the statistical H-nonmono / H-horizon **verdicts** are E6 (n=200–300/config).
 
+## E5 — Discretion & legibility (the H-axes signature)
+
+[`control/`](src/tool_risk_topology/control) measures the two axes (Build Plan
+§1.5–§1.6) and checks the "legible-yet-unsafe" signature:
+
+- **discretion `δ(I)`** — entropy of the effect classes an interface admits while
+  completing a task (K-sample effect clustering; coarse channel-level vs fine
+  granularity logged as a sensitivity), plus `δ_C(I)` from E1's reachable
+  catastrophic count;
+- **legibility `L(I,M,h)`** — the monitor's AUROC separating sentinel-bearing from
+  benign actions at `h ∈ {1, T}`, scored by a **real local LLM** monitor
+  (`llama3.1:8b` via Ollama) — run host-side over serialized trajectories so the
+  sandbox stays isolated.
+
+```bash
+cd sandbox && ./scripts/verify_e5.sh                       # dump + heuristic analysis
+python -m tool_risk_topology.control.e5 --scorer ollama    # real local-LLM legibility
+```
+
+**Result (real LLM monitor, [`reports/e5_legibility_report.json`](reports/e5_legibility_report.json)):**
+the H-axes signature **holds** — `L(B) ≈ L(C)` (0.66; B is as legible per-call as
+C) while `δ(B) ≫ δ(C)` (1.64 vs 0.62; B can touch prod, C cannot). The model-free
+heuristic monitor *misses* it (it underrates B's legibility), which is exactly why
+a real monitor matters.
+
+> **On-device GPU note.** This host is an Intel Mac (AMD Radeon Pro 5500M). vLLM
+> needs CUDA, PyTorch-GPU on Mac needs Apple-Silicon MPS, and Docker-for-Mac has
+> no GPU passthrough — so the model runs on **CPU** via Ollama. It's a real LLM,
+> just not GPU-accelerated here.
+
 ## Roadmap
 
-E1 (Phase 1), E2 (Phase 0), E3 (Phase 0/2), and E4 (Phase 0/2) are done. Next:
-discretion/legibility instrumentation (E5), then the 6-config control sweep that
-tests the predictions empirically (E6), the chokepoint-protocol eval (E7), and
+E1–E5 are done. Next: the 6-config control sweep that tests the predictions
+empirically (E6, the MVP gate), the chokepoint-protocol eval (E7), and
 predictive-model validation (E8). See the build backlog for the full breakdown.

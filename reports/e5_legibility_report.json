@@ -1,0 +1,85 @@
+{
+  "scorer": "OllamaScorer",
+  "legibility": {
+    "A": {
+      "per_call": {
+        "carving": "A",
+        "horizon": "per_call",
+        "L": 0.9,
+        "tpr_beta": 1.0,
+        "n_pos": 4,
+        "n_neg": 20
+      },
+      "trajectory": {
+        "carving": "A",
+        "horizon": "trajectory",
+        "L": 0.6,
+        "tpr_beta": 0.5,
+        "n_pos": 4,
+        "n_neg": 20
+      }
+    },
+    "B": {
+      "per_call": {
+        "carving": "B",
+        "horizon": "per_call",
+        "L": 0.6625,
+        "tpr_beta": 1.0,
+        "n_pos": 4,
+        "n_neg": 20
+      },
+      "trajectory": {
+        "carving": "B",
+        "horizon": "trajectory",
+        "L": 0.85,
+        "tpr_beta": 1.0,
+        "n_pos": 4,
+        "n_neg": 20
+      }
+    },
+    "C": {
+      "per_call": {
+        "carving": "C",
+        "horizon": "per_call",
+        "L": 0.6625,
+        "tpr_beta": 1.0,
+        "n_pos": 4,
+        "n_neg": 20
+      },
+      "trajectory": {
+        "carving": "C",
+        "horizon": "trajectory",
+        "L": 0.7688,
+        "tpr_beta": 1.0,
+        "n_pos": 4,
+        "n_neg": 20
+      }
+    }
+  },
+  "discretion": {
+    "coarse": {
+      "A": 1.8554,
+      "B": 1.6368,
+      "C": 0.6217
+    },
+    "fine": {
+      "A": 2.3868,
+      "B": 2.585,
+      "C": 2.1887
+    },
+    "delta_C": {
+      "A": 9,
+      "B": 9,
+      "C": 4
+    }
+  },
+  "h_axes_signature": {
+    "L(B)>=L(C)": true,
+    "L(B)": 0.6625,
+    "L(C)": 0.6625,
+    "delta(B)>>delta(C)": true,
+    "delta(B)": 1.6368,
+    "delta(C)": 0.6217,
+    "pass": true
+  }
+}
