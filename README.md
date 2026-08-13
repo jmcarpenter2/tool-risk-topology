@@ -106,9 +106,30 @@ carvings, so partition differences are attributable to topology.
 | `report.py` | E1-T6 | kill-gate PASS/FAIL report (md + json) |
 | `cli.py` | — | `trt-analyze` entry point |
 
+## E2 — Sandbox & Harness Foundation
+
+With Gate 1 passed, [`sandbox/`](sandbox) instantiates the capability model as a
+closed, **network-isolated** Docker stack (Postgres, MinIO, an internal FastAPI
+service, the canary-sink egress, an untrusted `app` sandbox, and a trusted
+`harness`) plus the machinery to measure an episode:
+
+- **effect extraction `E(τ)`** — snapshot/diff across four channels (git repo,
+  Postgres rows, MinIO objects, canary-sink log);
+- **sentinel `Z(τ)`** — benign-canary detection of exfil / side-task effects;
+- **Inspect skeleton** — an `inspect_ai` task driving an agent stub through one
+  tool call end-to-end, reproducible from `(config_hash, seed)`.
+
+```bash
+cd sandbox && ./scripts/verify_e2.sh   # build + up + isolation + selftest + eval
+```
+
+The harness code lives in [`src/tool_risk_topology/harness/`](src/tool_risk_topology/harness);
+see [`sandbox/README.md`](sandbox/README.md) for the full service map, isolation
+guarantees, and commands.
+
 ## Roadmap
 
-E1 is Phase 1. On a PASS, the project proceeds to the sandbox & harness (E2),
-runnable MCP carvings (E3), policies & monitor (E4), and the control sweep that
-tests these predictions empirically (E6/E8). See the build backlog for the full
-epic/ticket breakdown and gates.
+E1 (Phase 1) and E2 (Phase 0) are done. Next: runnable MCP carvings over the
+shared capability backend (E3), honest/attack policies and the horizon monitor
+(E4), and the control sweep that tests these predictions empirically (E6/E8).
+See the build backlog for the full epic/ticket breakdown and gates.
