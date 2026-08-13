@@ -7,3 +7,4 @@ networkx>=3.0
 pyyaml>=6.0
 numpy>=1.19
 inspect_ai>=0.3.60
+mcp>=1.6,<2

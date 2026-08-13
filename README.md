@@ -127,9 +127,27 @@ The harness code lives in [`src/tool_risk_topology/harness/`](src/tool_risk_topo
 see [`sandbox/README.md`](sandbox/README.md) for the full service map, isolation
 guarantees, and commands.
 
+## E3 — Interface carvings (runnable)
+
+[`src/tool_risk_topology/carvings/`](src/tool_risk_topology/carvings) makes A/B/C
+*runnable* over one shared capability backend against the E2 sandbox — the same
+schemas E1 analyzed, now executable:
+
+- **A** = a single `run_command` (bash in the app sandbox, equipped with
+  psql/mc/curl for full reach); **B** = 7 atomic primitives; **C** = intent tools
+  + the transparent `export_data` chokepoint.
+- **information-matching (E3-T5)** — a static check that each runnable carving's
+  In/Out labels match its E1 schema *and* that all three realize the same benign
+  task-completion set, plus a live benign battery proving equal completion.
+- each carving is also served as a real **MCP server** (stdio).
+
+```bash
+cd sandbox && ./scripts/verify_e3.sh   # info-match + MCP servers + live battery/probes
+```
+
 ## Roadmap
 
-E1 (Phase 1) and E2 (Phase 0) are done. Next: runnable MCP carvings over the
-shared capability backend (E3), honest/attack policies and the horizon monitor
-(E4), and the control sweep that tests these predictions empirically (E6/E8).
-See the build backlog for the full epic/ticket breakdown and gates.
+E1 (Phase 1), E2 (Phase 0), and E3 (Phase 0/2) are done. Next: honest/attack
+policies and the horizon-parameterized monitor (E4), discretion/legibility
+instrumentation (E5), and the control sweep that tests these predictions
+empirically (E6/E8). See the build backlog for the full epic/ticket breakdown.

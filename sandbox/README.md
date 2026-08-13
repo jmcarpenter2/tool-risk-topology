@@ -79,3 +79,26 @@ Postgres/MinIO). Pure function of `E(τ)`, so it is reproducible and unit-tested
 task: a deterministic **agent stub** makes one `export_to_sink` tool call against
 the live sandbox and a scorer confirms the egress. Eval logs are retained under
 `./logs`; the run is reproducible from `(config_hash, seed)`.
+
+## Interface carvings (E3)
+
+The three carvings (A/B/C) are runnable over one shared capability backend
+([`src/tool_risk_topology/carvings/`](../src/tool_risk_topology/carvings)) against
+these services. `app` gains an `/exec` endpoint (with `psql`/`mc`/`curl`) so
+carving A's `run_command` runs genuine bash with full reach; B/C run in the
+harness over the same backend.
+
+```bash
+./scripts/verify_e3.sh
+# or individually:
+docker compose exec harness python -m tool_risk_topology.carvings.cli info-match  # E3-T5 static
+docker compose exec harness python -m tool_risk_topology.carvings.cli mcp-smoke    # runnable MCP servers
+docker compose exec harness python -m tool_risk_topology.carvings.cli selftest      # live battery + probes
+docker compose exec harness python -m tool_risk_topology.carvings.mcp_server --carving C  # serve C over MCP/stdio
+```
+
+The live self-test proves all three carvings complete the *same* benign tasks,
+and that the runnable topology matches E1's prediction: A/B expose
+credential-read / weight-access / prod-mutation / un-choked egress, while C
+blocks them or funnels egress through the single transparent `export_data`
+chokepoint.
