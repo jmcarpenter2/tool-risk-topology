@@ -1,0 +1,160 @@
+# E2 — Sandbox & Harness Foundation.
+#
+# A closed, network-isolated stack of the services the capability model reasons
+# about (repo/app, Postgres, MinIO object store, internal FastAPI service, and
+# the canary-sink that stands in for `external`). Plus a *trusted* harness
+# container (separate from the untrusted `app` sandbox) that seeds state, snapshots
+# baselines, and extracts effects.
+#
+# Isolation (E2-T2): every service sits on a single `internal: true` network, so
+# no container can reach the public internet. `canary-sink` is the modeled egress.
+name: trt-sandbox
+
+x-service-env: &service-env
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: ${POSTGRES_DB:-sandbox}
+  POSTGRES_USER: ${POSTGRES_USER:-sandbox}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sandbox_pw}
+  MINIO_ENDPOINT: minio:9000
+  MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-sandbox}
+  MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-sandbox_pw}
+  MINIO_BUCKET: ${MINIO_BUCKET:-working}
+  INTERNAL_API_URL: http://internal-api:8000
+  CANARY_SINK_URL: http://canary-sink:8001
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sandbox}
+      POSTGRES_USER: ${POSTGRES_USER:-sandbox}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sandbox_pw}
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-sandbox} -d ${POSTGRES_DB:-sandbox}"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    networks: [sandbox]
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-sandbox}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-sandbox_pw}
+    volumes:
+      - minio-data:/data
+    networks: [sandbox]
+
+  # One-shot: waits for MinIO, creates the working bucket, seeds objects, exits 0.
+  # Doubles as MinIO's readiness gate (the MinIO server image ships no curl/health
+  # tool of its own), so downstream services depend on this completing.
+  createbuckets:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_started
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-sandbox}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-sandbox_pw}
+      MINIO_BUCKET: ${MINIO_BUCKET:-working}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        set -e
+        until mc alias set local http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" >/dev/null 2>&1; do
+          echo "waiting for minio..."; sleep 1;
+        done
+        mc mb -p "local/$$MINIO_BUCKET"
+        echo "seed report body"       | mc pipe "local/$$MINIO_BUCKET/seed/report.txt"
+        printf 'id,val\n1,alpha\n'    | mc pipe "local/$$MINIO_BUCKET/seed/data.csv"
+        mc ls -r "local/$$MINIO_BUCKET"
+        echo "createbuckets: DONE"
+    networks: [sandbox]
+
+  internal-api:
+    build: ./services
+    command: ["uvicorn", "internal_api:app", "--host", "0.0.0.0", "--port", "8000"]
+    environment: *service-env
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/healthz')"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    networks: [sandbox]
+
+  canary-sink:
+    build: ./services
+    command: ["uvicorn", "canary_sink:app", "--host", "0.0.0.0", "--port", "8001"]
+    environment:
+      <<: *service-env
+      SINK_DB_PATH: /var/lib/sink/events.db
+    volumes:
+      - sink-data:/var/lib/sink
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8001/healthz')"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    networks: [sandbox]
+
+  # Untrusted agent sandbox. Where run_command / file edits happen. Its health
+  # check doubles as evidence of reachability to every backend service (E2-T1).
+  app:
+    build: ./app
+    command: ["sleep", "infinity"]
+    working_dir: /workspace
+    environment: *service-env
+    volumes:
+      - workspace:/workspace
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; [socket.create_connection(hp,3).close() for hp in [('postgres',5432),('minio',9000),('internal-api',8000),('canary-sink',8001)]]"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      postgres: {condition: service_healthy}
+      internal-api: {condition: service_healthy}
+      canary-sink: {condition: service_healthy}
+      createbuckets: {condition: service_completed_successfully}
+    networks: [sandbox]
+
+  # Trusted harness: seeds state, snapshots baselines, extracts effects E(τ),
+  # computes the sentinel Z(τ). Shares the workspace volume with `app` so it can
+  # diff the repo the agent mutates. Package code is bind-mounted read-only.
+  harness:
+    build: ./harness
+    command: ["sleep", "infinity"]
+    working_dir: /repo
+    environment:
+      <<: *service-env
+      PYTHONPATH: /repo/src
+      WORKSPACE_DIR: /workspace
+    volumes:
+      - workspace:/workspace
+      - ../src:/repo/src:ro
+      - ../data:/repo/data:ro
+      - ../logs:/repo/logs
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; [socket.create_connection(hp,3).close() for hp in [('postgres',5432),('minio',9000),('canary-sink',8001)]]"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    depends_on:
+      postgres: {condition: service_healthy}
+      canary-sink: {condition: service_healthy}
+      createbuckets: {condition: service_completed_successfully}
+    networks: [sandbox]
+
+volumes:
+  minio-data:
+  sink-data:
+  workspace:
+
+networks:
+  sandbox:
+    driver: bridge
+    internal: true

@@ -1,0 +1,9 @@
+# Trusted harness clients + the E1 package's own deps (so the whole
+# tool_risk_topology package imports cleanly when bind-mounted).
+psycopg[binary]==3.2.3
+minio==7.2.12
+httpx==0.28.1
+networkx>=3.0
+pyyaml>=6.0
+numpy>=1.19
+inspect_ai>=0.3.60
