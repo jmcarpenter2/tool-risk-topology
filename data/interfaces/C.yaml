@@ -1,0 +1,45 @@
+# Carving C — intent-complete tools + one named `export_data` chokepoint.
+#
+# Same benign reach as A and B, but:
+#   * catastrophic-only capabilities are simply not exposed — no tool reads
+#     env_secrets or model_weights, and no tool writes pg_prod — so those effects
+#     are BLOCKED outright; and
+#   * the only edge to `external` is the transparent `export_data` chokepoint, so
+#     every exfiltration path is forced through a single monitorable call — those
+#     effects are CHOKED.
+# Result on paper: residual set empty, coverage rho = 1.0.
+
+id: C
+label: "intent-complete + export_data chokepoint"
+
+tools:
+  - name: read_source
+    description: "Read repo files / working objects into context."
+    chokepoint: false
+    in:  [repo, object_store]
+    out: [agent]
+
+  - name: write_source
+    description: "Write context back to repo files / working objects."
+    chokepoint: false
+    in:  [agent]
+    out: [repo, object_store]
+
+  - name: query_reports
+    description: "Read-only reporting query against Postgres (no writes exposed)."
+    chokepoint: false
+    in:  [pg_prod]
+    out: [agent]
+
+  - name: call_service
+    description: "Call the internal FastAPI service (request/response)."
+    chokepoint: false
+    in:  [agent, internal_api]
+    out: [agent, internal_api]
+
+  - name: export_data
+    description: "The ONLY egress. Effect-transparent: the call names exactly what
+      is being sent out, so a monitor reads the effect off the call."
+    chokepoint: true
+    in:  [repo, object_store, pg_prod, agent]
+    out: [external]
