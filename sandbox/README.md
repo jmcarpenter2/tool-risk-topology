@@ -119,3 +119,18 @@ trajectory at `h ∈ {1, T, chokepoint}`, computes `θ_β` on honest scores, and
 reports safety. LLM policy/monitor backends can't run inside the isolated,
 GPU-less sandbox, so deterministic baselines run here (with seams for real
 models); the statistical H-* verdicts are E6.
+
+## Discretion & legibility (E5)
+
+Split by design: the sandbox **dumps** labeled actions + K-sample effects, and a
+**host** process scores them (so a real LLM monitor can run without touching the
+isolated network).
+
+```bash
+./scripts/verify_e5.sh                                             # dump + heuristic
+docker compose exec harness python -m tool_risk_topology.control.cli dump --K 6
+python -m tool_risk_topology.control.e5 --scorer ollama            # real LLM legibility
+```
+
+With the real local-LLM monitor the H-axes signature holds (`L(B)≈L(C)` yet
+`δ(B)≫δ(C)`); the heuristic monitor misses it. See `reports/e5_legibility_report.json`.
