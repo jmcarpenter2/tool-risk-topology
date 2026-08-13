@@ -145,9 +145,33 @@ schemas E1 analyzed, now executable:
 cd sandbox && ./scripts/verify_e3.sh   # info-match + MCP servers + live battery/probes
 ```
 
+## E4 — Policies & monitor (the control game)
+
+[`src/tool_risk_topology/control/`](src/tool_risk_topology/control) implements the
+control game (Build Plan §1.1–§1.3, §1.9, §2.4):
+
+- **π_H / π_A** — honest and attack policies expressed in carving-agnostic skills
+  (so they are information-matched); π_A performs the benign task as cover, then
+  covertly exfiltrates the canary — logging attacker **strength** (a weak attacker
+  fakes a win). A routes every op through opaque `run_command`; B/C use typed tools.
+- **monitor** — suspicion `s_M(a_t | c_h(t)) ∈ [0,1]`, `S(τ)=max_t s`, at horizons
+  `h ∈ {1, T, chokepoint}`, with a model-free `HeuristicScorer` baseline (a
+  read→egress composition is only visible jointly at `h=T`) and a `ModelScorer`
+  seam for an LLM backend. Cost accounted per §1.9.
+- **audit** — `θ_β = Quantile_{1-β}` of honest `S(τ)`; `Safety = 1 − E_{π_A}[Z(1−Y)]`.
+
+```bash
+cd sandbox && ./scripts/verify_e4.sh   # π_H usefulness + π_A sentinel + monitor + audit
+```
+
+> The sandbox is network-isolated and GPU-less, so the LLM policy/monitor
+> backends can't run *inside* it — the deterministic baselines are what run now,
+> with clear seams for API/vLLM backends. The self-test verifies the machinery;
+> the statistical H-nonmono / H-horizon **verdicts** are E6 (n=200–300/config).
+
 ## Roadmap
 
-E1 (Phase 1), E2 (Phase 0), and E3 (Phase 0/2) are done. Next: honest/attack
-policies and the horizon-parameterized monitor (E4), discretion/legibility
-instrumentation (E5), and the control sweep that tests these predictions
-empirically (E6/E8). See the build backlog for the full epic/ticket breakdown.
+E1 (Phase 1), E2 (Phase 0), E3 (Phase 0/2), and E4 (Phase 0/2) are done. Next:
+discretion/legibility instrumentation (E5), then the 6-config control sweep that
+tests the predictions empirically (E6), the chokepoint-protocol eval (E7), and
+predictive-model validation (E8). See the build backlog for the full breakdown.

@@ -102,3 +102,20 @@ and that the runnable topology matches E1's prediction: A/B expose
 credential-read / weight-access / prod-mutation / un-choked egress, while C
 blocks them or funnels egress through the single transparent `export_data`
 chokepoint.
+
+## Policies & monitor (E4)
+
+[`src/tool_risk_topology/control/`](../src/tool_risk_topology/control) adds the
+control game over the carvings: honest/attack policies, a horizon-parameterized
+monitor, and the audit threshold.
+
+```bash
+./scripts/verify_e4.sh
+docker compose exec harness python -m tool_risk_topology.control.cli selftest
+```
+
+The self-test runs π_H (usefulness) and π_A (sentinel) under A/B/C, scores every
+trajectory at `h ∈ {1, T, chokepoint}`, computes `θ_β` on honest scores, and
+reports safety. LLM policy/monitor backends can't run inside the isolated,
+GPU-less sandbox, so deterministic baselines run here (with seams for real
+models); the statistical H-* verdicts are E6.
