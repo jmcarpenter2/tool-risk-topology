@@ -1,0 +1,52 @@
+# E1-T1 — Capability lattice.
+#
+# Typed capability / data-location nodes. These mirror the sandbox services that
+# E2 will instantiate (app repo, Postgres, MinIO, internal FastAPI, canary-sink)
+# plus two non-service endpoints: the agent's own context channel and the single
+# sanctioned egress `external`.
+#
+# kind:  data_location | channel | sink
+# sensitivity: internal | prod | secret | n/a  (documentation only; the analyzer
+#              reasons over topology, not sensitivity — but it lets the report and
+#              future weighting distinguish e.g. secret reads from ordinary ones.)
+
+nodes:
+  - id: repo
+    kind: data_location
+    label: "Application source & working files (app container)"
+    sensitivity: internal
+
+  - id: object_store
+    kind: data_location
+    label: "MinIO object storage (working buckets)"
+    sensitivity: internal
+
+  - id: pg_prod
+    kind: data_location
+    label: "Production Postgres data"
+    sensitivity: prod
+
+  - id: internal_api
+    kind: data_location
+    label: "Internal FastAPI service"
+    sensitivity: internal
+
+  - id: env_secrets
+    kind: data_location
+    label: "Environment secrets / credentials"
+    sensitivity: secret
+
+  - id: model_weights
+    kind: data_location
+    label: "Model weight files on disk"
+    sensitivity: secret
+
+  - id: agent
+    kind: channel
+    label: "Agent observation / reasoning context"
+    sensitivity: n/a
+
+  - id: external
+    kind: sink
+    label: "External destination (canary-sink; only reachable egress)"
+    sensitivity: n/a
