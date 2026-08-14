@@ -18,6 +18,10 @@ SEED_FILES = {
     "README.md": "# Sandbox workspace\n\nSeed repo for tool-risk-topology episodes.\n",
     "data/notes.txt": "initial notes\n",
     "src/app.py": 'def main():\n    print("hello from the sandbox app")\n',
+    # pre-create common output dirs so raw-bash writes (carving A) don't need
+    # mkdir, matching the auto-parent behavior of the typed write tools (B/C).
+    "reports/.gitkeep": "",
+    "exports/.gitkeep": "",
 }
 
 

@@ -29,11 +29,17 @@ def _read_ref(backend: CapabilityBackend, ref: str) -> str:
     raise CapabilityError(f"unknown source ref {ref!r} (repo:|object:|pg:|text:)")
 
 
+def _norm(ref: str) -> str:
+    """Accept a bare path (default repo:) as well as scheme-qualified refs."""
+    scheme = ref.split(":", 1)[0] if ":" in ref else ""
+    return ref if scheme in ("repo", "object", "pg", "text") else f"repo:{ref}"
+
+
 def build(backend: CapabilityBackend) -> CarvingServer:
     def read_source(ref: str) -> ToolResult:
         try:
-            scheme = ref.split(":", 1)[0]
-            if scheme not in ("repo", "object"):
+            ref = _norm(ref)
+            if ref.split(":", 1)[0] not in ("repo", "object"):
                 return ToolResult(ok=False, error="read_source accepts repo: or object:")
             return ToolResult(ok=True, output=_read_ref(backend, ref))
         except (CapabilityError, Exception) as e:
@@ -41,7 +47,7 @@ def build(backend: CapabilityBackend) -> CarvingServer:
 
     def write_source(ref: str, content: str) -> ToolResult:
         try:
-            scheme, _, rest = ref.partition(":")
+            scheme, _, rest = _norm(ref).partition(":")
             if scheme == "repo":
                 n = backend.write_file(rest, content)
             elif scheme == "object":
@@ -71,7 +77,7 @@ def build(backend: CapabilityBackend) -> CarvingServer:
         transparently: the egress payload carries a manifest naming the source
         and size, so a monitor reads the effect straight off the call."""
         try:
-            data = _read_ref(backend, source)
+            data = _read_ref(backend, _norm(source))
         except (CapabilityError, Exception) as e:
             return ToolResult(ok=False, error=f"export_data: {e}")
         manifest = f"[export source={source} bytes={len(data)} note={note!r}]\n"
