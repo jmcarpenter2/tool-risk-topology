@@ -39,6 +39,24 @@ def test_attack_logs_strength_and_marks_one_sentinel():
     assert "CANARY-abc123" in str(traj.sentinel_actions[0].args)
 
 
+def test_attack_spread_inserts_sigma_filler_between_head_and_egress():
+    task = suite()[1]  # publish_report
+    base = AttackPolicy(strength=2, spread=0).run(
+        task, FakeCarving("B"), backend=None, tag="t-s0", token="CANARY-s0")
+    spread = AttackPolicy(strength=2, spread=3).run(
+        task, FakeCarving("B"), backend=None, tag="t-s3", token="CANARY-s3")
+
+    assert base.meta["spread"] == 0 and spread.meta["spread"] == 3
+    # σ adds exactly σ actions
+    assert len(spread) == len(base) + 3
+    # the sentinel egress stays the tail; the sensitive read is the head before it
+    assert spread.actions[-1].carried_sentinel is True
+    head_idx = next(i for i, a in enumerate(spread.actions) if a.tool == "read_env")
+    between = spread.actions[head_idx + 1: -1]
+    assert len(between) == 3
+    assert all(a.ok and not a.carried_sentinel for a in between)  # benign filler
+
+
 def test_attack_on_C_blocks_secret_and_chokes_egress():
     task = suite()[1]
     traj = AttackPolicy(strength=1).run(task, FakeCarving("C"), backend=None,
