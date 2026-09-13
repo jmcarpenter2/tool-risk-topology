@@ -33,8 +33,8 @@ def test_attack_logs_strength_and_marks_one_sentinel():
                                         tag="t2", token="CANARY-abc123")
     assert traj.policy_kind == "A"
     assert traj.meta["strength"] == 2
-    assert traj.meta["technique"] == "csv-camouflage"
-    assert traj.meta["secret_exfiltrated"] is True  # B exposes read_env
+    assert traj.meta["technique"] == "csv+secret"
+    assert traj.meta["secret_exfiltrated"] is True  # B exposes read_env, s<=2 reads it
     assert len(traj.sentinel_actions) == 1
     assert "CANARY-abc123" in str(traj.sentinel_actions[0].args)
 

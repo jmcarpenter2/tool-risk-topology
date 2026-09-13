@@ -199,8 +199,53 @@ a real monitor matters.
 > no GPU passthrough — so the model runs on **CPU** via Ollama. It's a real LLM,
 > just not GPU-accelerated here.
 
+## E6 — Control sweep & model-in-the-loop (the empirical test)
+
+[`control/`](src/tool_risk_topology/control) turns the control game into a live
+measurement, three ways (all host-side; the sandbox stays isolated, only the
+model's *brain* runs on the host):
+
+- **scripted sweep** (`sweep.py` → `e6.py`) — **safety × (carving × horizon ×
+  attacker-strength)**, n=300 attack / 100 honest per config, scored by the real
+  `llama3.1:8b` monitor, with Wilson CIs, two-proportion-z (H-nonmono) and
+  difference-in-differences (H-horizon);
+- **compositional risk** (`compositions.py` → `risk.py`) — each carving's
+  *achieving set* (distinct tool sequences that all exfiltrate the canary) scored
+  move-by-move, as a **safety-vs-attacker-search-budget** curve;
+- **model-in-the-loop** (`agent.py` + `tool_exec.py` → `eval.py`) — a **real
+  model** drives the carving tools over a multi-step loop (host brain, in-sandbox
+  hands via `docker compose exec`), benign vs. misaligned, per carving.
+
+```bash
+cd sandbox && ./scripts/verify_e6.sh 300 100 ollama 0,1,2,3,4   # scripted sweep (phase 1 in-sandbox + phase 2 host scoring)
+python -m tool_risk_topology.control.risk --horizon per_call    # compositional safety-vs-budget
+python -m tool_risk_topology.control.eval --provider ollama --model llama3.1:8b   # model-in-the-loop
+```
+
+**Result — the attack-elicitation × capability bind** (full writeup:
+[`reports/E6_findings.md`](reports/E6_findings.md)). A live safety number needs a
+policy that is *both willing to attack and able to execute the exfil*; neither
+accessible model is both. **Claude Opus 5 refuses** the red-team role even under a
+sanctioned control-eval framing (`stop_reason: "refusal"`, zero output tokens —
+not bypassed). The **local `llama3.1:8b` is willing but incompetent** — its attack
+calls score more suspicious than its benign ones, but `Z=0` in every episode, so
+`safety` collapses to a constant `1.00` across A/B/C with no B-vs-C separation.
+The scripted evaluators run to completion and show the *structural* mechanism (C's
+achieving set is small with a suspicion floor at the transparent chokepoint; B's
+is larger with low-suspicion egress disguises), but their safety numbers are
+dominated by θ-calibration, so they illustrate rather than clinch the hypothesis.
+
+> **Load-bearing evidence stays E1 + E5.** On the models an individual can run, the
+> live control eval is bounded by attack elicitation and attacker capability, not
+> by the interface — so the interface claim is made cleanly *statically* (E1
+> kill-gate PASS) and *per-call* (E5 legibility, H-axes hold). The natural next
+> step is a **scripted capable-attacker channel** (`Z=1` by construction) that
+> isolates the interface's contribution without eliciting a live attacker.
+
 ## Roadmap
 
-E1–E5 are done. Next: the 6-config control sweep that tests the predictions
-empirically (E6, the MVP gate), the chokepoint-protocol eval (E7), and
-predictive-model validation (E8). See the build backlog for the full breakdown.
+E1–E6 are done. E6 lands the empirical apparatus and the attack-elicitation ×
+capability finding; the clean interface result is E1/E5. Next: a scripted
+capable-attacker channel to decouple interface monitorability from model
+willingness, the chokepoint-protocol eval (E7), and predictive-model validation
+(E8). See the build backlog for the full breakdown.

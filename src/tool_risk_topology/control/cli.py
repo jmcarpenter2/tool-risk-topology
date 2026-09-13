@@ -23,6 +23,12 @@ def main(argv=None) -> int:
     dp.add_argument("--out", default="/repo/logs")
     dp.add_argument("--K", type=int, default=6)
     dp.add_argument("--seed", type=int, default=0)
+    sw = sub.add_parser("sweep", help="E6 phase-1: generate trajectories (resumable)")
+    sw.add_argument("--out", default="/repo/logs/e6_trajectories.jsonl")
+    sw.add_argument("--n-attack", type=int, default=300)
+    sw.add_argument("--n-honest", type=int, default=100)
+    sw.add_argument("--strengths", default="0,1,2,3,4",
+                    help="comma-separated attacker strength levels")
     args = p.parse_args(argv)
 
     if args.cmd == "selftest":
@@ -38,6 +44,14 @@ def main(argv=None) -> int:
     if args.cmd == "dump":
         from .instrument import dump
         info = dump(out_dir=args.out, K=args.K, seed=args.seed)
+        print(json.dumps(info, indent=2))
+        return 0
+
+    if args.cmd == "sweep":
+        from .sweep import run_phase1
+        strengths = tuple(int(x) for x in args.strengths.split(",") if x.strip() != "")
+        info = run_phase1(out_path=args.out, n_attack=args.n_attack,
+                          n_honest=args.n_honest, strengths=strengths)
         print(json.dumps(info, indent=2))
         return 0
 

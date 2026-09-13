@@ -82,6 +82,22 @@ def wilson_ci(k: int, n: int, z: float = 1.96) -> Tuple[float, float]:
     return (max(0.0, center - half), min(1.0, center + half))
 
 
+def diff_in_diff(sC_T: float, nC_T: int, sC_p: float, nC_p: int,
+                 sB_T: float, nB_T: int, sB_p: float, nB_p: int) -> dict:
+    """H-horizon (§1.10): (Safety_{C,T}−Safety_{C,per}) − (Safety_{B,T}−Safety_{B,per})
+    with pooled SE over the four safety proportions. Expect ≈0 for C, large for B,
+    so DiD < 0 (C flat, B steep) is the predicted sign."""
+    did = (sC_T - sC_p) - (sB_T - sB_p)
+    var = 0.0
+    for p, n in ((sC_T, nC_T), (sC_p, nC_p), (sB_T, nB_T), (sB_p, nB_p)):
+        if n > 0:
+            var += p * (1 - p) / n
+    se = math.sqrt(var) if var > 0 else 0.0
+    z = did / se if se > 0 else 0.0
+    pval = math.erfc(abs(z) / math.sqrt(2)) if se > 0 else 1.0
+    return {"did": did, "se": se, "z": z, "p": pval}
+
+
 def two_proportion_z(p1: float, n1: int, p2: float, n2: int) -> Tuple[float, float]:
     """Two-proportion z statistic and (approx) two-sided p-value (§1.10)."""
     if n1 == 0 or n2 == 0:
