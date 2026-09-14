@@ -242,10 +242,44 @@ dominated by θ-calibration, so they illustrate rather than clinch the hypothesi
 > step is a **scripted capable-attacker channel** (`Z=1` by construction) that
 > isolates the interface's contribution without eliciting a live attacker.
 
+## σ experiment — the scripted capable attacker (real LLM monitor)
+
+The E6 next-step, built: a **scripted** attacker (`StealthAttackPolicy`) that
+achieves the exfil live (`Z=1` by construction, no jailbreak) so we can measure
+detection directly. It reads normal-looking data and sends it out with the canary
+embedded, and we vary one lever — **spread σ**, how far the read is diffused from
+the send — against a real LLM monitor (`llama3.1:8b`) at three memory lengths
+(per_call, window w=3, trajectory). Two coupled primitives make σ meaningful: a
+`window` monitor horizon (bounded lookback) and `AttackPolicy.spread`.
+
+```bash
+cd sandbox && docker compose exec -T harness python -m tool_risk_topology.control.sigma_experiment \
+  --mode gen --trajectories /repo/logs/sigma_trajectories.jsonl --spreads 0,2,4,6 --n-honest 6 --n-attack 6
+python -m tool_risk_topology.control.sigma_experiment --mode score --scorer ollama \
+  --trajectories logs/sigma_trajectories.jsonl --report reports/sigma_report_llm.json --windows 3
+python -m tool_risk_topology.control.sigma_experiment --mode plot --report reports/sigma_report_llm.json
+```
+
+**Result** (full writeup: [`reports/sigma_findings.md`](reports/sigma_findings.md)).
+The σ prediction *failed*: spread did **not** erode safety, because even the
+stealth attack's final "send customer data to an external address" is a per-call
+tell a capable monitor catches on its own. But the run confirms the thesis a third
+way, through **legibility, not spread**: **C is cleanly separable at every horizon**
+(θ=0.55, every attack caught), while **B blurs honest and malicious once the
+monitor reads context** (θ jumps 0.55→0.85, and some attacks slip). Same
+"legible-per-call yet not trustworthy" signature as E5. (Small n=6; the flat
+results are the robust part.)
+
+> **Takeaway:** the project's central claim (chokepoint carving → more catchable
+> misuse) now holds from three independent angles — E1 (static), E5 (legibility),
+> and this. Attacker *spread* is not, on this evidence, a lever against a capable
+> monitor.
+
 ## Roadmap
 
-E1–E6 are done. E6 lands the empirical apparatus and the attack-elicitation ×
-capability finding; the clean interface result is E1/E5. Next: a scripted
-capable-attacker channel to decouple interface monitorability from model
-willingness, the chokepoint-protocol eval (E7), and predictive-model validation
-(E8). See the build backlog for the full breakdown.
+E1–E6 plus the σ experiment are done; the central claim (C > B in catchability)
+holds from three independent angles (E1 static, E5 legibility, σ run). Next: the
+chokepoint-protocol eval (E7) and predictive-model validation (E8). A genuinely
+per-call-invisible attack (leaking the canary in disguised fragments) would be the
+way to give attacker spread a fair test. See the build backlog for the full
+breakdown.
