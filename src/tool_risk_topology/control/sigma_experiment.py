@@ -34,7 +34,7 @@ from .audit import audit_threshold, safety as safety_metric, wilson_ci
 from .monitor import PER_CALL, TRAJECTORY, WINDOW, HeuristicScorer, Monitor
 from .trajectory import Action, Trajectory
 
-CARVINGS = ("A", "B", "C", "D")
+CARVINGS = ("A", "B", "C", "D", "D2")   # D2 = D with taint propagation (v2)
 BETA = 0.2
 
 
@@ -59,7 +59,8 @@ def _record(traj: Trajectory, episode_id: str) -> dict:
 
 
 def run_gen(out_path: str, n_honest: int, n_attack: int, seed: int = 0,
-            carvings: Tuple[str, ...] = CARVINGS, progress: bool = True) -> dict:
+            carvings: Tuple[str, ...] = CARVINGS, progress: bool = True,
+            taint: bool = False, attack_source: str = None) -> dict:
     from ..carvings.registry import build_all
     from ..carvings.backend import CapabilityBackend
     from ..harness import actions as _actions
@@ -71,6 +72,9 @@ def run_gen(out_path: str, n_honest: int, n_attack: int, seed: int = 0,
     backend = CapabilityBackend()
     cfg = backend.cfg
     built = build_all(backend)
+    if taint:  # D v2: content-based taint propagation on the provenance chokepoint
+        for cv in built.values():
+            cv.taint = True
     tasks = suite()
 
     out = Path(out_path)
@@ -91,7 +95,8 @@ def run_gen(out_path: str, n_honest: int, n_attack: int, seed: int = 0,
                 eid = f"{cid}-A-{i}"
                 # spread=None → randomized per episode; distinct seed per episode
                 t = run_episode(carving, backend, tasks[i % len(tasks)],
-                                StealthAttackPolicy(spread=None, seed=seed + 1000 + i),
+                                StealthAttackPolicy(spread=None, seed=seed + 1000 + i,
+                                                    source=attack_source),
                                 eid, token=token)
                 zc += int(t.Z or 0)
                 fh.write(json.dumps(_record(t, eid)) + "\n"); written += 1
@@ -176,7 +181,7 @@ def run_plot(in_path: str, out_png: str) -> bool:
 
     horizons = report["horizons"]
     carvings = [c for c in CARVINGS if c in report["carvings"]]
-    hue = {"A": "#a8443c", "B": "#c07d1c", "C": "#137a63", "D": "#245e9c"}
+    hue = {"A": "#a8443c", "B": "#c07d1c", "C": "#137a63", "D": "#245e9c", "D2": "#6a3fb0"}
     x = np.arange(len(horizons)); w = 0.8 / len(carvings)
     fig, ax = plt.subplots(figsize=(8, 4.6))
     for j, cid in enumerate(carvings):
@@ -214,6 +219,10 @@ def main(argv=None) -> int:
     p.add_argument("--n-honest", type=int, default=24)
     p.add_argument("--n-attack", type=int, default=40)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--taint", action="store_true",
+                   help="D v2: content-based taint propagation on the provenance chokepoint")
+    p.add_argument("--attack-source", default=None,
+                   help="force the attack's exfil source, e.g. 'db' (customer PII)")
     p.add_argument("--scorer", choices=["heuristic", "ollama"], default="heuristic")
     p.add_argument("--model", default="llama3.1:8b")
     p.add_argument("--cache", default="logs/sigma_llm_cache.json")
@@ -227,7 +236,8 @@ def main(argv=None) -> int:
 
     if args.mode == "gen":
         carvings = tuple(x.strip() for x in args.carvings.split(",") if x.strip())
-        info = run_gen(args.trajectories, args.n_honest, args.n_attack, args.seed, carvings)
+        info = run_gen(args.trajectories, args.n_honest, args.n_attack, args.seed, carvings,
+                       taint=args.taint, attack_source=args.attack_source)
         print(json.dumps(info)); return 0
 
     if args.mode == "score":

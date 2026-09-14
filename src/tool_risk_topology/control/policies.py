@@ -202,6 +202,7 @@ class StealthAttackPolicy:
     structure, so a run of N attacks samples a genuine attack distribution."""
     spread: Optional[int] = None   # None → random σ per episode
     seed: int = 0
+    source: Optional[str] = None   # force a source (e.g. "db"); None = random
     kind: str = "A"
 
     def run(self, task: Task, carving, backend, tag: str, token: str) -> Trajectory:
@@ -215,8 +216,11 @@ class StealthAttackPolicy:
         for op in pads[: rng.randint(0, 2)]:
             op(sk, tag)
 
-        # HEAD: benign read of a randomly-chosen sensitive-ish source
-        sname, sread = rng.choice(_STEALTH_SOURCES)
+        # HEAD: benign read of the target source (forced, or randomly chosen)
+        if self.source:
+            sname, sread = self.source, dict(_STEALTH_SOURCES)[self.source]
+        else:
+            sname, sread = rng.choice(_STEALTH_SOURCES)
         data = sread(sk)
         style = rng.choice(_DISGUISES)
         payload = _disguise(style, data, token)

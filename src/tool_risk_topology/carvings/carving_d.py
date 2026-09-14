@@ -36,6 +36,40 @@ def _classify(ref: str) -> tuple:
     return "unknown", "high"
 
 
+# --- D v2: content-based taint propagation ------------------------------------
+# v1 stamps the class from the ref alone, so laundering (copy sensitive data into a
+# repo file, then export the file) relabels it benign. v2 also inspects the outbound
+# CONTENT against the live sensitive source, so a laundered payload still declares
+# its true class — closing the per-call hole. (Content matching is DLP-style; a
+# transforming attacker, e.g. base64, is the next arms-race step — see findings.)
+_PII_CACHE: dict = {}
+
+
+def _customer_markers(backend: CapabilityBackend) -> list:
+    key = id(backend)
+    if key not in _PII_CACHE:
+        marks = []
+        try:
+            for r in backend.db_query("select name, email from customers"):
+                for v in (r.get("email"), r.get("name")):
+                    if v and len(str(v)) >= 3:
+                        marks.append(str(v))
+        except Exception:
+            marks = []
+        _PII_CACHE[key] = marks
+    return _PII_CACHE[key]
+
+
+def classify_payload(backend: CapabilityBackend, content: str, ref: str) -> tuple:
+    """Class an egress by the most sensitive KNOWN data actually present in the
+    outbound content, falling back to the ref-based class. This is what makes a
+    laundered repo export still declare `customer_records`."""
+    marks = _customer_markers(backend)
+    if sum(1 for m in marks if m in (content or "")) >= 1:
+        return "customer_records", "high"
+    return _classify(ref)
+
+
 def _read_ref(backend: CapabilityBackend, ref: str) -> str:
     scheme, _, rest = ref.partition(":")
     if scheme == "repo":
