@@ -80,6 +80,53 @@ legible composition,"** and E1 already encodes it as the `agent → external` ed
 - Result shown against the naive name-trusting monitor (the conservative case); a
   name-agnostic monitor only helps D further.
 
+## D v2 — closing the per-call hole with taint propagation
+
+D v1's gap: a laundered export (copy sensitive data into a repo file, then export
+the file) declares `repo_file`, so it looks benign *per call* and is caught only
+with trajectory memory. **D v2** adds content-based taint propagation: the egress
+classes the payload by the most sensitive KNOWN data actually present in it
+(matched against the live source), so a laundered export self-declares its true
+class.
+
+**Mechanism — verified.** The *same* laundered payload, same `Z=1`:
+- D v1 stamps `source_class=repo_file, sensitivity=internal` (benign-looking)
+- D v2 stamps `source_class=customer_records, sensitivity=high` (self-declaring)
+
+So v2 does exactly what it should: laundering no longer relabels sensitive data as
+benign. Isolated per-call score of that export (default monitor): v1 ≈ 0.55 → v2 ≈
+0.65, vs an honest repo export ≈ 0.30.
+
+**But the marginal safety gain is modest, honestly.** A focused run where the
+attack launders customer PII (naive monitor, 24 attacks, `--attack-source db`):
+
+| carving | per-call | trajectory |
+|---|---|---|
+| C | 11/24 | 23/24 |
+| D v1 | 24/24 | 24/24 |
+| D v2 | 24/24 | 24/24 |
+
+D already catches PII-laundering **per-call at v1** — because staging PII
+(`write_source` with customer content) is itself a per-call tell, and honest work
+touching customer data pushes θ up so the boundary is content-driven anyway. v2's
+export stamp is then belt-and-suspenders, not the deciding factor.
+
+**The clear answer.** Taint propagation *closes the specific hole* — a laundered
+export self-declares instead of hiding as `repo_file` (mechanism verified) — so D v2
+is the right design. But two honest limits bound how much it buys:
+- laundering sensitive data already tends to leave a per-call tell (the staging
+  write), so the *incremental* catch-rate gain over v1 + a trajectory monitor is
+  small;
+- **content matching is evadable by transformation** (base64, chunking, encryption)
+  — the next arms-race step. The principled ceiling is *opaque, non-readable
+  handles* (the agent never holds raw sensitive bytes to re-wrap), which is a deeper
+  capability redesign, not a monitor or stamp tweak.
+
+So the loop closes on the topology claim — force composition (D v1), and make each
+composed step self-declaring (D v2) — with the residual robustness question
+(transformation attacks) pointing at handle-based information-flow control as the
+end state.
+
 ## Reproduce
 ```bash
 docker compose -f sandbox/docker-compose.yml exec -T harness python -m tool_risk_topology.control.sigma_experiment \
@@ -87,4 +134,8 @@ docker compose -f sandbox/docker-compose.yml exec -T harness python -m tool_risk
 python -m tool_risk_topology.control.sigma_experiment --mode score --scorer ollama --monitor-prompt default \
   --trajectories logs/sigma_launder.jsonl --report reports/sigma_launder_llm.json --windows 3
 python -m tool_risk_topology.control.sigma_experiment --mode plot --report reports/sigma_launder_llm.json --png reports/sigma_launder_catch.png
+
+# D v2 (taint propagation): laundered exports self-declare their true class
+docker compose -f sandbox/docker-compose.yml exec -T harness python -m tool_risk_topology.control.sigma_experiment \
+  --mode gen --trajectories /repo/logs/d2_B.jsonl --carvings D --n-honest 16 --n-attack 24 --seed 21 --attack-source db --taint
 ```
