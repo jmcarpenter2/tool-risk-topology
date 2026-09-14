@@ -16,7 +16,7 @@ from tool_risk_topology.schemas import (
 
 def test_default_carvings_load():
     ifaces = load_default_interfaces()
-    assert set(ifaces) == {"A", "B", "C"}
+    assert set(ifaces) == {"A", "B", "C", "D"}
     assert len(ifaces["B"].tools) == 7  # ~7 atomic primitives
     # C has exactly one chokepoint tool
     assert [t.name for t in ifaces["C"].chokepoint_tools] == ["export_data"]
@@ -31,7 +31,7 @@ def test_abc_are_information_matched():
     result = check_information_matching(lat, ifaces)
     assert result.ok, result.summary()
     # every carving realizes every benign path
-    for iid in ("A", "B", "C"):
+    for iid in ("A", "B", "C", "D"):
         assert result.missing[iid] == []
 
 

@@ -11,7 +11,7 @@ from tool_risk_topology.schemas import load_default_interfaces
 
 def test_carvings_build_with_expected_shape():
     servers = build_all()
-    assert set(servers) == {"A", "B", "C"}
+    assert set(servers) == {"A", "B", "C", "D"}
     assert [t.name for t in servers["A"].tools] == ["run_command"]
     assert len(servers["B"].tools) == 7
     # C has exactly one chokepoint tool, named export_data
@@ -23,7 +23,7 @@ def test_carvings_build_with_expected_shape():
 def test_runnable_schema_matches_e1_yaml():
     servers = build_all()
     e1 = load_default_interfaces()
-    for cid in ("A", "B", "C"):
+    for cid in ("A", "B", "C", "D"):
         diffs = compare_to_e1(servers[cid], e1[cid])
         assert diffs == [], f"{cid} schema drift: {diffs}"
 
@@ -34,7 +34,7 @@ def test_info_match_passes():
     assert report.graph_ok, report.graph_summary
     assert report.passed
     # every carving realizes every benign path
-    for cid in ("A", "B", "C"):
+    for cid in ("A", "B", "C", "D"):
         assert report.missing[cid] == []
 
 
