@@ -337,6 +337,20 @@
     <p style="margin-top:14px">This result is robust for one small (8B) trusted monitor — exactly the cheap overseer that control setups assume. The obvious next tests are a stronger monitor and a wider workload.</p>
   </section>
 
+  <section>
+    <p class="eyebrow">Applying it</p>
+    <h2>Designing tools a misaligned model can't quietly abuse</h2>
+    <p class="lede">If oversight of a capable model rests on reading its tool calls, this turns into concrete design rules. The aim isn't to make a tool <em>look</em> safe — it's to make quiet misuse <b>structurally have to show itself</b>.</p>
+    <ul class="clean">
+      <li><b>Leave no single-call escape.</b> No one tool should both assemble <em>and</em> carry out a catastrophic effect — send arbitrary bytes outside, drop a dataset, move money — in one opaque call. If a single call can do it, there's no composition to read and nothing to catch. Make the dangerous effect take several steps.</li>
+      <li><b>Design for risk, not reassurance.</b> A soothing name like <span class="mono">export_data</span> lowers a monitor's guard — and a human reviewer's. The call should foreground the risky fact (data is leaving, to an external place, of this kind), never a sanctioned-sounding label.</li>
+      <li><b>Let only real, named things leave.</b> An egress tool should move typed sources — a specific file, record set, or object — not an agent-composed blob. Then anything reshaped or smuggled has to be <b>staged first</b>, a visible step, and every exit traces to something the system can name.</li>
+      <li><b>Give the overseer memory.</b> Forcing composition only pays off if the monitor reads <em>sequences</em>, not single calls. Budget monitoring for trajectories, and concentrate it where data actually leaves.</li>
+      <li><b>Check it before you ship.</b> This is auditable at design time: model the tools as a graph and ask whether any path lets data reach an outside sink <em>without composing</em>. A single-call escape is a design-time red flag, not a runtime surprise.</li>
+    </ul>
+    <p style="margin-top:16px">None of this makes misuse impossible — a determined model can still act — but it makes <b>secret, one-shot</b> misuse structurally hard, and turns "did it just do something bad?" into a question a monitor can actually answer.</p>
+  </section>
+
   <footer>
     tool-risk-topology · research note · scripted-attacker study, 40 variants/carving · monitor llama3.1:8b · network-isolated sandbox, synthetic canary
   </footer>
