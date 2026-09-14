@@ -244,6 +244,11 @@ dominated by θ-calibration, so they illustrate rather than clinch the hypothesi
 
 ## Scripted attacker — legibility can lull the monitor
 
+> 📄 **Illustrated research note** (self-contained HTML — open in a browser, or
+> serve via GitHub Pages): [`reports/chokepoint-legibility.html`](reports/chokepoint-legibility.html).
+> It tells the whole arc — hypothesis → the chokepoint lulls the monitor → carving D
+> forces a legible composition — with the charts inline.
+
 The E6 next-step: a **scripted** attacker (`StealthAttackPolicy`) that achieves the
 exfil live (`Z=1` by construction, no jailbreak) so detection is measured directly.
 A randomized variant library (source × disguise × destination × spread) draws a
