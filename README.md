@@ -282,11 +282,45 @@ mix). Two robust findings:
 > **contingent** on pairing it with a name-agnostic, content-focused monitor.
 > Transparency of intent is double-edged for oversight.
 
+## Carving D — provenance-typed egress: forcing a legible composition
+
+The design that answers "legibility can lull": **D** keeps a single egress door but
+(a) accepts only real source refs (no agent-fabricated `text:` — the one-call escape
+C left open) and (b) declares each export's `source_class` + `sensitivity`. Full
+writeup: [`reports/carving_d_findings.md`](reports/carving_d_findings.md).
+
+- **Static (E1):** D passes (residual 0, ρ=1.0) and is *leaner* than C — `B_mon 3`
+  vs 4, because the removed `agent → external` edge **is** the single-call escape
+  hatch (visible on paper all along), and D stays information-matched.
+- **Laundering experiment** (a laundering-capable attacker that takes the cheapest
+  exit each interface allows; naive default monitor, 40 attacks/carving, catch rate):
+
+  | carving | per-call | windowed | trajectory |
+  |---|---|---|---|
+  | B free-form | 40/40 | 39/40 | 40/40 |
+  | C chokepoint | 40/40 | 8/40 | 31/40 |
+  | **D provenance** | 29/40 | 37/40 | **40/40** |
+
+  **D's catch rate rises monotonically with monitor memory (72% → 92% → 100%)** — the
+  fingerprint of a *forced, legible composition*: D has no single-call escape, so
+  exfil must be staged (read → write → export), and the more history the monitor
+  sees, the more legible it becomes. At the trajectory horizon D catches **every**
+  attack, matching conspicuous B and beating naive-chokepoint C. C shows no such
+  gain (no composition to reveal).
+
+> **This vindicates the original hypothesis, refined.** The topology property that
+> matters is not "has a chokepoint" but **"offers no single-call escape, so every
+> exfil manifests as a composition a trajectory monitor can read."** C failed by
+> letting the attack collapse into one lulling call; D forces the composition. (D v1
+> does not propagate taint, so laundered exports look benign *per call* — caught with
+> memory; taint propagation is optional hardening, not required for the result.)
+
 ## Roadmap
 
-E1–E6 plus the scripted-attacker study are done. The static structural result (E1)
-and the per-call legibility axes (E5) hold; the **live** safety comparison does not
-put C ahead of B, and surfaces the *legibility-can-lull* effect instead. Next: the
-chokepoint-protocol eval (E7) — a monitor that concentrates scrutiny on the
-chokepoint by design — and predictive-model validation (E8). See the build backlog
-for the full breakdown.
+E1–E6, the scripted-attacker study, and carving D are done. The arc: E1 (static)
+holds; the live safety metric does **not** put a naive chokepoint (C) ahead of
+free-form (B) and surfaces *legibility-can-lull*; **D** (no single-call escape +
+provenance) then forces a trajectory-legible composition and catches everything a
+laundering attacker tries. Next: taint-propagating D v2 (per-call robustness), a
+chokepoint-concentrating monitor (E7), and predictive-model validation (E8). See the
+build backlog for the full breakdown.

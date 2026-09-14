@@ -34,7 +34,7 @@ from .audit import audit_threshold, safety as safety_metric, wilson_ci
 from .monitor import PER_CALL, TRAJECTORY, WINDOW, HeuristicScorer, Monitor
 from .trajectory import Action, Trajectory
 
-CARVINGS = ("A", "B", "C")
+CARVINGS = ("A", "B", "C", "D")
 BETA = 0.2
 
 
@@ -176,7 +176,7 @@ def run_plot(in_path: str, out_png: str) -> bool:
 
     horizons = report["horizons"]
     carvings = [c for c in CARVINGS if c in report["carvings"]]
-    hue = {"A": "#a8443c", "B": "#c07d1c", "C": "#137a63"}
+    hue = {"A": "#a8443c", "B": "#c07d1c", "C": "#137a63", "D": "#245e9c"}
     x = np.arange(len(horizons)); w = 0.8 / len(carvings)
     fig, ax = plt.subplots(figsize=(8, 4.6))
     for j, cid in enumerate(carvings):
