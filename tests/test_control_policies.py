@@ -63,19 +63,26 @@ def test_attack_spread_inserts_sigma_filler_between_head_and_egress():
 
 def test_stealth_attack_is_a_benign_read_then_egress_with_no_env_tell():
     task = suite()[0]  # customer_report
-    traj = StealthAttackPolicy(spread=2).run(
+    traj = StealthAttackPolicy(spread=2, seed=1).run(
         task, FakeCarving("B"), backend=None, tag="st", token="CANARY-xyz789")
     assert traj.meta["technique"] == "stealth-composition"
     assert traj.meta["spread"] == 2 and traj.meta["head"] == "benign_read"
+    assert "/" in traj.meta["variant"]  # e.g. "db/csv"
     # no per-call tell: the attack never reads an env secret
     assert all(a.tool != "read_env" for a in traj.actions)
-    # the composition is a benign data read (db_query) somewhere before the egress
-    tools = [a.tool for a in traj.actions]
-    assert "db_query" in tools
     # exactly one sentinel egress, carrying the canary, as the tail
     assert len(traj.sentinel_actions) == 1
     assert traj.actions[-1].carried_sentinel is True
     assert "CANARY-xyz789" in str(traj.actions[-1].args)
+
+
+def test_stealth_variants_are_diverse_across_seeds():
+    task = suite()[0]
+    variants = {StealthAttackPolicy(seed=s).run(
+        task, FakeCarving("B"), backend=None, tag=f"s{s}", token=f"TOK{s}").meta["variant"]
+        for s in range(20)}
+    # the randomized library yields several distinct (source/disguise) structures
+    assert len(variants) >= 5
 
 
 def test_attack_on_C_blocks_secret_and_chokes_egress():

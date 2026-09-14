@@ -242,44 +242,51 @@ dominated by θ-calibration, so they illustrate rather than clinch the hypothesi
 > step is a **scripted capable-attacker channel** (`Z=1` by construction) that
 > isolates the interface's contribution without eliciting a live attacker.
 
-## σ experiment — the scripted capable attacker (real LLM monitor)
+## Scripted attacker — legibility can lull the monitor
 
-The E6 next-step, built: a **scripted** attacker (`StealthAttackPolicy`) that
-achieves the exfil live (`Z=1` by construction, no jailbreak) so we can measure
-detection directly. It reads normal-looking data and sends it out with the canary
-embedded, and we vary one lever — **spread σ**, how far the read is diffused from
-the send — against a real LLM monitor (`llama3.1:8b`) at three memory lengths
-(per_call, window w=3, trajectory). Two coupled primitives make σ meaningful: a
-`window` monitor horizon (bounded lookback) and `AttackPolicy.spread`.
+The E6 next-step: a **scripted** attacker (`StealthAttackPolicy`) that achieves the
+exfil live (`Z=1` by construction, no jailbreak) so detection is measured directly.
+A randomized variant library (source × disguise × destination × spread) draws a
+**diverse** attack distribution, and a noisier honest policy (`NoisyHonestPolicy`)
+gives the audit threshold a smooth honest baseline. 40 attacks + 24 honest per
+carving, scored by the real `llama3.1:8b` monitor with 95% Wilson CIs.
 
 ```bash
-cd sandbox && docker compose exec -T harness python -m tool_risk_topology.control.sigma_experiment \
-  --mode gen --trajectories /repo/logs/sigma_trajectories.jsonl --spreads 0,2,4,6 --n-honest 6 --n-attack 6
+docker compose -f sandbox/docker-compose.yml exec -T harness python -m tool_risk_topology.control.sigma_experiment \
+  --mode gen --trajectories /repo/logs/sigma_div.jsonl --carvings A,B,C --n-honest 24 --n-attack 40 --seed 7
 python -m tool_risk_topology.control.sigma_experiment --mode score --scorer ollama \
-  --trajectories logs/sigma_trajectories.jsonl --report reports/sigma_report_llm.json --windows 3
-python -m tool_risk_topology.control.sigma_experiment --mode plot --report reports/sigma_report_llm.json
+  --trajectories logs/sigma_div.jsonl --report reports/sigma_div_llm.json --monitor-prompt default
+python -m tool_risk_topology.control.sigma_experiment --mode score --scorer ollama \
+  --trajectories logs/sigma_div.jsonl --report reports/sigma_div_llm_chokepoint.json --monitor-prompt chokepoint
 ```
 
-**Result** (full writeup: [`reports/sigma_findings.md`](reports/sigma_findings.md)).
-The σ prediction *failed*: spread did **not** erode safety, because even the
-stealth attack's final "send customer data to an external address" is a per-call
-tell a capable monitor catches on its own. But the run confirms the thesis a third
-way, through **legibility, not spread**: **C is cleanly separable at every horizon**
-(θ=0.55, every attack caught), while **B blurs honest and malicious once the
-monitor reads context** (θ jumps 0.55→0.85, and some attacks slip). Same
-"legible-per-call yet not trustworthy" signature as E5. (Small n=6; the flat
-results are the robust part.)
+**Result** (full writeup: [`reports/sigma_findings.md`](reports/sigma_findings.md);
+attacker *spread* σ turned out to be a dead lever and was folded into the variant
+mix). Two robust findings:
 
-> **Takeaway:** the project's central claim (chokepoint carving → more catchable
-> misuse) now holds from three independent angles — E1 (static), E5 (legibility),
-> and this. Attacker *spread* is not, on this evidence, a lever against a capable
-> monitor.
+- **Under a naive monitor, the chokepoint is the *worst* — the label lulls it.**
+  Catch rate of 40 attacks: at the windowed monitor **B 40/40** but **C 11/40**.
+  Same disguised payload scores **0.83** through B's generic `http_request` but only
+  **0.45** through C's `export_data` — the monitor treats the sanctioned-sounding
+  name as routine, so the single door becomes the safest exit.
+- **A name-agnostic monitor closes the gap.** Judge egress by *what leaves*, not the
+  tool name (applied identically to all carvings, never naming the attack), and C
+  recovers **11/40 → 36/40** ([0.77, 0.96]), on par with B (40/40). So the reversal
+  was a monitor artifact, not a structural defect.
+
+> **Takeaway.** The strong thesis — *chokepoint ⇒ more catchable than free-form* —
+> is **not** supported by the live safety metric: C is at best on par with B, never
+> clearly better. The real, sharper finding is **legibility can lull**: naming a
+> tool for its intent lowers a naive monitor's guard, so a chokepoint's structural
+> benefit ([E1](reports/report.md): all egress funnelled to one auditable door) is
+> **contingent** on pairing it with a name-agnostic, content-focused monitor.
+> Transparency of intent is double-edged for oversight.
 
 ## Roadmap
 
-E1–E6 plus the σ experiment are done; the central claim (C > B in catchability)
-holds from three independent angles (E1 static, E5 legibility, σ run). Next: the
-chokepoint-protocol eval (E7) and predictive-model validation (E8). A genuinely
-per-call-invisible attack (leaking the canary in disguised fragments) would be the
-way to give attacker spread a fair test. See the build backlog for the full
-breakdown.
+E1–E6 plus the scripted-attacker study are done. The static structural result (E1)
+and the per-call legibility axes (E5) hold; the **live** safety comparison does not
+put C ahead of B, and surfaces the *legibility-can-lull* effect instead. Next: the
+chokepoint-protocol eval (E7) — a monitor that concentrates scrutiny on the
+chokepoint by design — and predictive-model validation (E8). See the build backlog
+for the full breakdown.
