@@ -97,35 +97,50 @@ So v2 does exactly what it should: laundering no longer relabels sensitive data 
 benign. Isolated per-call score of that export (default monitor): v1 ≈ 0.55 → v2 ≈
 0.65, vs an honest repo export ≈ 0.30.
 
-**But the marginal safety gain is modest, honestly.** A focused run where the
-attack launders customer PII (naive monitor, 24 attacks, `--attack-source db`):
+**On the full suite, v2 changes nothing measurable.** The apples-to-apples test is
+the *diverse* attack distribution (the same one D v1 was measured on, seed 11),
+scored by the naive monitor, 40 attacks:
 
-| carving | per-call | trajectory |
-|---|---|---|
-| C | 11/24 | 23/24 |
-| D v1 | 24/24 | 24/24 |
-| D v2 | 24/24 | 24/24 |
+| carving | per-call | windowed | trajectory |
+|---|---|---|---|
+| B | 40/40 | 39/40 | 40/40 |
+| C | 40/40 | 8/40 | 31/40 |
+| D v1 | 29/40 | 37/40 | 40/40 |
+| **D v2** | **29/40** | **37/40** | **40/40** |
 
-D already catches PII-laundering **per-call at v1** — because staging PII
-(`write_source` with customer content) is itself a per-call tell, and honest work
-touching customer data pushes θ up so the boundary is content-driven anyway. v2's
-export stamp is then belt-and-suspenders, not the deciding factor.
+**D v2 is identical to D v1 at every horizon.** Content-based taint did not close
+the per-call gap. Two reasons:
+- **It only touches known-sensitive content.** In the diverse suite most attacks
+  exfil non-PII sources (a README, an internal API response, an object) or just the
+  attacker's own canary token — none of which a content matcher can flag. Only the
+  ~1/4 that exfil the customers table get relabelled, so the aggregate barely moves.
+- **Even the relabelled exports don't clear the bar.** A laundered PII export lifts
+  from `repo_file` (~0.55) to `customer_records` (~0.65) — still under the honest
+  threshold θ≈0.80 the diverse honest traffic sets. The stamp changes; the verdict
+  doesn't.
 
-**The clear answer.** Taint propagation *closes the specific hole* — a laundered
-export self-declares instead of hiding as `repo_file` (mechanism verified) — so D v2
-is the right design. But two honest limits bound how much it buys:
-- laundering sensitive data already tends to leave a per-call tell (the staging
-  write), so the *incremental* catch-rate gain over v1 + a trajectory monitor is
-  small;
-- **content matching is evadable by transformation** (base64, chunking, encryption)
-  — the next arms-race step. The principled ceiling is *opaque, non-readable
-  handles* (the agent never holds raw sensitive bytes to re-wrap), which is a deeper
-  capability redesign, not a monitor or stamp tweak.
+(An earlier *focused* run with `--attack-source db` showed D v1 and D v2 both at
+24/24 — but that was **confounded**: forcing PII made the staging write a per-call
+tell that caught everything at v1, hiding the comparison. The diverse suite above is
+the honest test, and it supersedes it.)
 
-So the loop closes on the topology claim — force composition (D v1), and make each
-composed step self-declaring (D v2) — with the residual robustness question
-(transformation attacks) pointing at handle-based information-flow control as the
-end state.
+**The clear answer.** Content-based taint (v2) is **not** the fix. The mechanism
+works in isolation — a laundered export *does* self-declare `customer_records`
+instead of `repo_file` — but it does not translate into aggregate safety, because
+the threat is broader than known-sensitive content and the lift is too small to
+cross the threshold. What actually carries D is **v1's forcing function plus a
+trajectory monitor** (laundering caught 40/40 at full memory). The per-call gap
+(29/40) is a real, open limitation.
+
+Robustly closing it is not a stamp tweak: it needs **opaque, non-readable handles**
+— information-flow control where the agent never holds raw sensitive bytes to
+re-wrap, so there is no content to launder and no stamp to spoof. That is the honest
+end-state, and the natural next project.
+
+So the loop closes where it genuinely closes: **force composition (D v1) + read
+trajectories** makes misuse legible. Making each *call* self-declare its content
+(D v2) does not add measurable safety here; the real robustness frontier is
+handle-based IFC.
 
 ## Reproduce
 ```bash
