@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from typing import Dict, Optional
 
-from . import carving_a, carving_b, carving_c
+from . import carving_a, carving_b, carving_c, carving_d
 from .backend import CapabilityBackend
 from .base import CarvingServer
 
-CARVING_IDS = ("A", "B", "C")
-_BUILDERS = {"A": carving_a.build, "B": carving_b.build, "C": carving_c.build}
+CARVING_IDS = ("A", "B", "C", "D")
+_BUILDERS = {"A": carving_a.build, "B": carving_b.build,
+             "C": carving_c.build, "D": carving_d.build}
 
 
 def build_carving(carving_id: str, backend: Optional[CapabilityBackend] = None) -> CarvingServer:

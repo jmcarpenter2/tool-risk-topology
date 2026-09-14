@@ -57,7 +57,7 @@ def load_default_interfaces() -> Dict[str, Interface]:
     """Load the bundled A/B/C carvings, keyed by id."""
     d = Path(__file__).resolve().parents[2] / "data" / "interfaces"
     out: Dict[str, Interface] = {}
-    for name in ("A", "B", "C"):
+    for name in ("A", "B", "C", "D"):
         iface = load_interface(d / f"{name}.yaml")
         out[iface.id] = iface
     return out

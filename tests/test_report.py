@@ -26,7 +26,7 @@ def test_report_serializes():
     report = build_report()
     d = report.to_dict()
     assert d["verdict"]["passed"] is True
-    assert set(d["interfaces"]) == {"A", "B", "C"}
+    assert set(d["interfaces"]) == {"A", "B", "C", "D"}
     # json + markdown render without error and mention the verdict
     assert "PASS" in report.to_markdown()
     assert report.to_json().strip().startswith("{")
