@@ -77,7 +77,11 @@
         }
       ],
       "choked_effects": [],
-      "blocked_effects": []
+      "blocked_effects": [],
+      "single_call_escapes": [
+        "run_command->external",
+        "run_command->pg_prod"
+      ]
     },
     "B": {
       "rho": 0.0,
@@ -150,7 +154,11 @@
         }
       ],
       "choked_effects": [],
-      "blocked_effects": []
+      "blocked_effects": [],
+      "single_call_escapes": [
+        "db_exec->pg_prod",
+        "http_request->external"
+      ]
     },
     "C": {
       "rho": 1.0,
@@ -179,7 +187,40 @@
         "credential_read",
         "weight_access",
         "prod_mutation_db"
+      ],
+      "single_call_escapes": [
+        "export_data->external"
       ]
+    },
+    "D": {
+      "rho": 1.0,
+      "counts": {
+        "block": 5,
+        "choke": 4,
+        "resid": 0,
+        "total": 9
+      },
+      "burden": {
+        "chokepoint_edges": 3,
+        "residual_edges": 0,
+        "n_residual_effects": 0,
+        "scalar": 3.0
+      },
+      "residual_effects": [],
+      "choked_effects": [
+        "exfil_repo",
+        "exfil_objstore",
+        "exfil_pg",
+        "exfil_api"
+      ],
+      "blocked_effects": [
+        "exfil_secrets",
+        "exfil_weights",
+        "credential_read",
+        "weight_access",
+        "prod_mutation_db"
+      ],
+      "single_call_escapes": []
     }
   },
   "verdict": {
