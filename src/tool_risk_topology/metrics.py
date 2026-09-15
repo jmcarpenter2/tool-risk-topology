@@ -54,12 +54,47 @@ class InterfaceMetrics:
     # effect id -> shortest choke-free composition length (residual effects only)
     l_min_residual: Dict[str, int]
     burden: MonitoringBurden
+    # single-call escapes: (tool, sink) pairs where one tool takes agent-controlled
+    # input straight to a catastrophic sink (see `fabrication_escapes`).
+    fabrication_escapes: List[Tuple[str, str]] = field(default_factory=list)
 
     def coverage(self) -> float:
         return self.rho
 
     def n_residual(self) -> int:
         return len(self.partition.residual)
+
+    def n_escapes(self) -> int:
+        return len(self.fabrication_escapes)
+
+
+def fabrication_escapes(
+    lattice: Lattice, interface: Interface
+) -> List[Tuple[str, str]]:
+    """Single-call escapes: tools that route **agent-controlled** content straight
+    to a **catastrophic sink** in one call.
+
+    This is the static signature of "no composition required". A tool with
+    ``agent`` in its ``In`` and a catastrophic sink in its ``Out`` lets a
+    misaligned agent realize a dangerous effect — exfiltration, a production
+    write, etc. — in a single opaque call: nothing upstream forces it to compose,
+    so a per-call monitor sees only the emit and a trajectory monitor has no
+    composition to read. It generalizes past exfiltration: the sink is *any*
+    catastrophic sink (``external``, ``pg_prod``, …), not just ``external``.
+
+    This is what statically separates an intent-labelled chokepoint that still
+    accepts agent-fabricated content (a single-call escape survives) from one that
+    only exports typed, real sources (zero escapes — every catastrophic effect
+    must be composed, and the composition is what a monitor reads).
+    """
+    sinks = {e.sink for e in lattice.catastrophic} - {"agent"}
+    out: List[Tuple[str, str]] = []
+    for t in interface.tools:
+        if "agent" in t.reads:
+            for s in sorted(sinks):
+                if s in t.writes:
+                    out.append((t.name, s))
+    return sorted(out)
 
 
 def _edges_on_residual_flows(
@@ -136,4 +171,5 @@ def compute_metrics(lattice: Lattice, interface: Interface) -> InterfaceMetrics:
         rho=rho,
         l_min_residual=l_min_residual,
         burden=burden,
+        fabrication_escapes=fabrication_escapes(lattice, interface),
     )

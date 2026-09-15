@@ -51,6 +51,23 @@ Gate 1 verdict: PASS ✅
 `ρ(I) = (|C_block| + |C_choke|) / |C|` is coverage; `B_mon` is the number of
 distinct edges a monitor must watch (residual edges + chokepoint edges).
 
+**Single-call escapes** (the C-vs-D distinguisher). Two carvings can look identical
+on ρ and residual yet differ in whether the agent can reach a catastrophic sink in
+*one opaque call*. The analyzer reports, per carving, every tool that takes
+**agent-controlled input** and writes a **catastrophic sink** — a single-call escape
+that lets a misaligned agent act without composing (so a monitor has no composition
+to read). It generalizes past exfiltration to any sink (`external`, `pg_prod`, …):
+
+| Carving | single-call escapes |
+|---|---|
+| A (opaque) | 2 — `run_command→external`, `run_command→pg_prod` |
+| B (free-form) | 2 — `db_exec→pg_prod`, `http_request→external` |
+| C (chokepoint) | 1 — `export_data→external` (accepts agent-fabricated `text:`) |
+| **D (provenance)** | **0 — none** (egress takes only real sources) |
+
+D is the only carving that forces *every* catastrophic effect to be composed — the
+static signature behind the downstream result that D's misuse is trajectory-legible.
+
 > This is a **paper** check on interface topology. A pass means the chokepoint
 > carving is coherent and shrinks the residual set *by construction*; it does
 > **not** yet establish that the shrink survives a real attack policy — that is

@@ -82,6 +82,8 @@ class KillGateReport:
                 ],
                 "choked_effects": [v.effect.id for v in m.partition.choked],
                 "blocked_effects": [v.effect.id for v in m.partition.blocked],
+                "single_call_escapes": [f"{tool}->{sink}"
+                                        for tool, sink in m.fabrication_escapes],
             }
         return out
 
@@ -127,6 +129,24 @@ class KillGateReport:
                 for v in res
             )
             lines.append(f"- **{iid}** ({len(res)}): {items}")
+        lines.append("")
+
+        lines.append("## Single-call escapes (agent-fabricated content → catastrophic sink)\n")
+        lines.append(
+            "A single tool that takes **agent-controlled** input and writes a "
+            "**catastrophic sink** lets the agent realize a dangerous effect in "
+            "one opaque call — no composition for a monitor to read. Generalizes "
+            "past exfiltration (any sink: `external`, `pg_prod`, …). Zero forces "
+            "every catastrophic effect to be composed. This is what separates two "
+            "carvings that otherwise look identical on ρ and residual.\n"
+        )
+        lines.append("| Carving | single-call escapes | tools |")
+        lines.append("|---|---:|---|")
+        for iid in sorted(self.metrics):
+            m = self.metrics[iid]
+            esc = m.fabrication_escapes
+            detail = ", ".join(f"{t}→{s}" for t, s in esc) if esc else "— none —"
+            lines.append(f"| {iid} | {len(esc)} | {detail} |")
         lines.append("")
 
         verdict = "PASS ✅" if self.verdict.passed else "FAIL ❌ — HALT"
