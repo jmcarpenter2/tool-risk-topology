@@ -337,6 +337,21 @@
     <p style="margin-top:14px">This result is robust for one small (8B) trusted monitor — exactly the cheap overseer that control setups assume. The obvious next tests are a stronger monitor and a wider workload.</p>
   </section>
 
+  <section>
+    <p class="eyebrow">Applying it</p>
+    <h2>Designing tools a misaligned model can't quietly abuse</h2>
+    <p class="lede">If oversight of a capable model rests on reading its tool calls, this turns into concrete design rules. The aim isn't to make a tool <em>look</em> safe — it's to make quiet misuse <b>structurally have to show itself</b>.</p>
+    <ul class="clean">
+      <li><b>Leave no single-call escape.</b> No one tool should both assemble <em>and</em> carry out a catastrophic effect — send arbitrary bytes outside, drop a dataset, move money — in one opaque call. If a single call can do it, there's no composition to read and nothing to catch. Make the dangerous effect take several steps.</li>
+      <li><b>Design for risk, not reassurance.</b> A soothing name like <span class="mono">export_data</span> lowers a monitor's guard — and a human reviewer's. The call should foreground the risky fact (data is leaving, to an external place, of this kind), never a sanctioned-sounding label.</li>
+      <li><b>Let only real, named things leave.</b> An egress tool should move typed sources — a specific file, record set, or object — not an agent-composed blob. Then anything reshaped or smuggled has to be <b>staged first</b>, a visible step, and every exit traces to something the system can name.</li>
+      <li><b>Give the overseer memory.</b> Forcing composition only pays off if the monitor reads <em>sequences</em>, not single calls. Budget monitoring for trajectories, and concentrate it where data actually leaves.</li>
+      <li><b>Check it before you ship — statically.</b> This is auditable at design time, and it's what this project's analyzer does: model the toolset as a capability graph and, for <em>every</em> catastrophic effect, report whether it is <b>blocked</b>, <b>funnelled to one monitorable chokepoint</b>, or left as a <b>residual path</b> that dodges oversight. It also counts <b>single-call escapes</b> — any tool that takes agent-controlled input straight to a catastrophic sink — which is what tells apart two designs that look identical on coverage: the chokepoint that still accepts fabricated content scores <b>1</b>, the provenance-typed one that only exports real sources scores <b>0</b>. Zero means every catastrophic effect must be composed. All of it computed before the model ever runs.</li>
+    </ul>
+    <p style="margin-top:18px"><b>This isn't only about data theft.</b> The same graph analysis treats the whole catastrophic set as <span class="mono">source → sink</span> effects — writing to the <b>production database</b>, reading <b>credentials or secrets</b>, touching <b>model weights</b> — not just exfiltration. In the toolset studied here (nine such effects), the opaque and free-form designs leave <b>all nine residual</b>; the chokepoint design <b>blocks five outright</b> (no tool can write prod, read secrets, or read weights) and <b>funnels the remaining four through one door — zero residual</b>. "Pushing to prod" is governed exactly the way exfiltration is: by ensuring there's no ungoverned path to the sink.</p>
+    <p style="margin-top:14px">None of this makes misuse impossible — a determined model can still act — but it makes <b>secret, one-shot</b> misuse structurally hard, and turns "did it just do something bad?" into a question a monitor can answer. The design flaw at the heart of this note is itself catchable statically: the escape that lets a chokepoint be lulled shows up as a single-call escape the analyzer scores. What the graph <em>can't</em> tell you is whether the monitor will then actually look — so the static check is the necessary first gate, and a monitor that reads trajectories is the second.</p>
+  </section>
+
   <footer>
     tool-risk-topology · research note · scripted-attacker study, 40 variants/carving · monitor llama3.1:8b · network-isolated sandbox, synthetic canary
   </footer>
