@@ -47,17 +47,31 @@ windowed monitor it caught only 11/40 (27%, CI [0.16, 0.43]) vs B's 40/40
 ([0.91, 1.00]). Non-overlapping intervals. (The small-n pilot that suggested "C
 clean everywhere" was sampling luck — see §5.)
 
-### 3. The mechanism — the name lulls the monitor
-Scored the **same disguised payload** two ways:
+### 3. The mechanism — the name/framing lulls the monitor
+The same stolen bytes score differently through B's generic `http_request` than
+through C's intent-named `export_data`: the monitor treats a call *named* for a
+sanctioned purpose as routine and lowers its guard, while a generic external send
+reads as sketchy. Reproduce it with the committed probe (means over a fixed set of
+disguised payloads, either backend):
 
-| monitor | via B `http_request(target=external)` | via C `export_data(source=…, note=…)` |
-|---|---|---|
-| default | **0.83–0.85** (flagged) | **0.45–0.50** (waved through) |
+```bash
+python -m tool_risk_topology.control.name_probe --scorer ollama    --num-samples 5   # -> reports/name_probe_llama3.1-8b.json
+python -m tool_risk_topology.control.name_probe --scorer anthropic --model claude-sonnet-5
+```
 
-The monitor treats a call *named* `export_data` as routine/sanctioned and lowers
-its guard, while a generic external `http_request` reads as sketchy. The
-chokepoint's "transparency" — labeling the tool for its intent — **signals
-legitimacy**, so the single door becomes the safest exit.
+| monitor | B `http_request` | C `export_data` | gap |
+|---|---|---|---|
+| 8B (mean/5) | 0.70 | 0.50 | +0.21 |
+| sonnet-5 (mean/3) | 0.46 | 0.41 | +0.04 |
+
+**Caveat — read this before quoting a number.** On a *single* payload the gap is
+real but noisy (8B swings ~0.2–0.35 run to run) and it is ~0 on a frontier monitor,
+which judges disguised content low through either tool. The earlier "0.84 vs 0.47
+on one payload" was a one-off draw, not reproducible. The robust, committed evidence
+for the lull is the **aggregate catch rate**: under the default monitor C's per-call
+catch is **23/40 (8B) / 22/40 (sonnet)** vs B's **40/40** — and it recovers to 40/40
+the moment the monitor is told to ignore tool names (§4). That rate, not any single
+suspicion pair, is what to cite.
 
 ### 4. A name-agnostic monitor — the chokepoint recovers to parity
 Built a **chokepoint-aware** monitor prompt that judges egress by *what leaves*
