@@ -304,6 +304,15 @@ mix). Two robust findings:
 > **contingent** on pairing it with a name-agnostic, content-focused monitor.
 > Transparency of intent is double-edged for oversight.
 
+**Frontier-monitor replication** ([`reports/frontier_monitor_findings.md`](reports/frontier_monitor_findings.md)).
+Re-running the *same* trajectories with **claude-sonnet-5** as the monitor (only the
+model changed): the per-call lull **holds** — Sonnet catches just **22–24/40** of C's
+exfiltrations judging a single `export_data` call, indistinguishable from the 8B and
+far below B's 40/40, so it is *not* a weak-monitor artifact. What the frontier model
+adds is **context**: C's windowed catch recovers to ~35/40 (the 8B collapsed to ~8–11),
+and D is caught well throughout (per-call 37/40 vs the 8B's 29). The recipe: a
+chokepoint + a trajectory-reading monitor, with no trust placed in the tool's name.
+
 ## Carving D — provenance-typed egress: forcing a legible composition
 
 The design that answers "legibility can lull": **D** keeps a single egress door but

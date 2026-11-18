@@ -323,7 +323,7 @@
     <p class="eyebrow">Limitations &amp; what we don't claim</p>
     <h2>Where this result stops</h2>
     <ul class="clean">
-      <li><b>One small monitor, modest n.</b> A single 8B trusted monitor, 40 attacks per design. The robust signal is the <em>trend</em> — D's catch rate rises with monitor memory, C's doesn't — not the exact percentages. (An early 6-attack pilot pointed the other way; that was sampling noise.)</li>
+      <li><b>Replicated on a frontier monitor.</b> We re-ran the <em>same</em> trajectories through <b>claude-sonnet-5</b> as the monitor (only the model changed). The lull holds: judging a single <span class="mono">export_data</span> call, Sonnet catches just <b>22–24/40</b> of C's exfiltrations under the name-trusting prompt — indistinguishable from the 8B, far below B's 40/40, and consistent across seeds (the 8B was noisier). So it is <em>not</em> a weak-monitor artifact. The difference: a frontier monitor reads <em>context</em> far better (C's windowed catch recovers to ~35/40 where the 8B collapsed to ~8–11), and it catches D well throughout. Still modest n (40/design), one task family, a synthetic canary.</li>
       <li><b>We are not claiming a chokepoint alone wins.</b> A naive chokepoint (C) only ties free-form B. The win is specific: <b>no single-call escape</b> <em>and</em> a monitor that reads trajectories. Either without the other is not enough.</li>
       <li><b>D needs a monitor with memory.</b> The whole mechanism is that exfil must <em>compose</em>, so a monitor that reads trajectories is required — a purely per-call monitor is the wrong tool for this design, by construction.</li>
       <li><b>A tidy sandbox.</b> A synthetic canary, one benign task family, a closed environment. Whether the effect holds against a wider workload and a stronger monitor is the open question.</li>
@@ -334,7 +334,7 @@
     <p class="eyebrow">Why it matters</p>
     <h2>Transparency you can trust vs. transparency that lulls</h2>
     <p>Intent-labeled tools are widely assumed to aid oversight — you can read what the agent meant to do. This is evidence the same labels can <b>lower a monitor's guard</b>: a well-intentioned "make it legible" design can make misuse <em>harder</em> to catch. But the fix is constructive, and specific. Don't design tools to <em>look</em> trustworthy; design them so that <b>the dangerous thing can't be done in one unremarkable call</b>. Force it to compose — read, then stage, then send — and a monitor that watches trajectories reads the composition off the record. That is the property to engineer for, and it's checkable statically (is there an edge that lets data leave without composing?).</p>
-    <p style="margin-top:14px">This result is robust for one small (8B) trusted monitor — exactly the cheap overseer that control setups assume. The obvious next tests are a stronger monitor and a wider workload.</p>
+    <p style="margin-top:14px">This holds across monitor scale: a cheap 8B trusted monitor <em>and</em> a frontier model (claude-sonnet-5) are both lulled per-call by the intent-label. What a stronger monitor adds is context: give it a window and it reads the composition the label hid. So the practical recipe is concrete — a chokepoint, a monitor that reads trajectories, and no reliance on the tool's name to carry the trust.</p>
   </section>
 
   <section>
