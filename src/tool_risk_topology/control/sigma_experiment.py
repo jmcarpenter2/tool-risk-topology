@@ -214,8 +214,9 @@ def main(argv=None) -> int:
     p.add_argument("--n-honest", type=int, default=24)
     p.add_argument("--n-attack", type=int, default=40)
     p.add_argument("--seed", type=int, default=0)
-    p.add_argument("--scorer", choices=["heuristic", "ollama"], default="heuristic")
-    p.add_argument("--model", default="llama3.1:8b")
+    p.add_argument("--scorer", choices=["heuristic", "ollama", "anthropic"], default="heuristic")
+    p.add_argument("--model", default="llama3.1:8b",
+                   help="ollama model, or an Anthropic model id (e.g. claude-sonnet-5)")
     p.add_argument("--cache", default="logs/sigma_llm_cache.json")
     p.add_argument("--num-samples", type=int, default=1,
                    help="LLM draws averaged per unique call (higher = more stable score)")
@@ -231,14 +232,26 @@ def main(argv=None) -> int:
         print(json.dumps(info)); return 0
 
     if args.mode == "score":
-        if args.scorer == "ollama":
-            from .llm_monitor import OllamaScorer, _SYSTEM, _SYSTEM_CHOKEPOINT
+        if args.scorer in ("ollama", "anthropic"):
+            from .llm_monitor import _SYSTEM, _SYSTEM_CHOKEPOINT
             sysprompt = _SYSTEM_CHOKEPOINT if args.monitor_prompt == "chokepoint" else _SYSTEM
-            scorer = OllamaScorer(model=args.model, cache_path=args.cache,
-                                  num_samples=args.num_samples, system=sysprompt)
-            if not scorer.ping():
-                print("ERROR: Ollama not reachable at 127.0.0.1:11434", file=sys.stderr)
-                return 2
+            if args.scorer == "ollama":
+                from .llm_monitor import OllamaScorer
+                model = "llama3.1:8b" if args.model == "llama3.1:8b" else args.model
+                scorer = OllamaScorer(model=model, cache_path=args.cache,
+                                      num_samples=args.num_samples, system=sysprompt)
+                if not scorer.ping():
+                    print("ERROR: Ollama not reachable at 127.0.0.1:11434", file=sys.stderr)
+                    return 2
+            else:  # anthropic: frontier-model monitor via the Messages API
+                from .llm_monitor import AnthropicScorer
+                model = "claude-sonnet-5" if args.model == "llama3.1:8b" else args.model
+                scorer = AnthropicScorer(model=model, cache_path=args.cache,
+                                         num_samples=args.num_samples, system=sysprompt)
+                if not scorer.ping():
+                    print("ERROR: ANTHROPIC_API_KEY not set in the environment.",
+                          file=sys.stderr)
+                    return 2
         else:
             scorer = HeuristicScorer()
         run_score(args.trajectories, args.report, scorer, windows)
