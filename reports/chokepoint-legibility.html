@@ -262,8 +262,8 @@
     </div>
     <p style="margin-top:16px">The consequence: to exfiltrate reshaped or attacker-held data, the agent can no longer do it in one call. It must first <b>stage</b> the data into a real source, then export it — a read→write→export <b>composition</b> a monitor can read.</p>
     <figure>
-      <p class="figtitle">Catch rate vs. how much history the monitor sees</p>
-      <p class="figsub">A laundering-capable attacker, naive monitor, 40 attacks each. D has no single-call escape, so its exfil is forced into a composition — and the more history the monitor reads, the more legible it becomes. C shows no such gain; there is nothing to compose.</p>
+      <p class="figtitle">Catch rate vs. how much history the monitor sees <span style="font-weight:400;color:var(--faint)">· local 8B monitor</span></p>
+      <p class="figsub">A laundering-capable attacker, naive monitor, 40 attacks each. D has no single-call escape, so its exfil is forced into a composition. On this small 8B monitor, catchability rises as the monitor sees more of that composition; a frontier monitor (see Limitations) catches it well at every horizon instead. C shows no such structure — there is nothing to compose.</p>
       <div class="chartwrap">
         <svg viewBox="0 0 600 300" role="img" aria-label="Catch rate by monitor memory. D (provenance) rises from 72% per-call to 92% windowed to 100% at full trajectory. C (chokepoint) is 100% then drops to 20% then 78% — no upward trend. B (free-form) stays near 100% throughout.">
           <g class="mono" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--faint)">
@@ -316,7 +316,7 @@
         <span><span class="swatch" style="background:var(--B)"></span>B · free-form</span>
       </div>
     </figure>
-    <p class="note"><b>D's rising line is the fingerprint of a forced, legible composition.</b> At a monitor that reads whole trajectories, D catches <b>every</b> attack — matching the conspicuous free-form B and beating the naive chokepoint C. This is the original hypothesis realized: a misaligned agent's tool <em>composition</em> is legible — once the interface refuses to let it skip composing.</p>
+    <p class="note"><b>On this 8B monitor, D's catch rate rises with history</b> — the forced read→write→export composition grows legible as the monitor sees more of it, catching every attack at full trajectory. But that rise is <em>monitor-specific</em>: a frontier monitor (claude-sonnet-5) catches D's composition well at every horizon, including per-call (37/40 vs C's 24/40), so it never needs the whole trajectory to see it. What is robust across <em>both</em> monitors is the design property, not the curve: <b>no single-call escape forces the composition</b>, and that composition is what makes a misaligned agent's exfil catchable — where the naive chokepoint C, still exfiltrating in one call, is not.</p>
   </section>
 
   <section>
@@ -325,8 +325,8 @@
     <ul class="clean">
       <li><b>Replicated on a frontier monitor.</b> We re-ran the <em>same</em> trajectories through <b>claude-sonnet-5</b> as the monitor (only the model changed). The lull holds: judging a single <span class="mono">export_data</span> call, Sonnet catches just <b>22–24/40</b> of C's exfiltrations under the name-trusting prompt — indistinguishable from the 8B, far below B's 40/40, and consistent across seeds (the 8B was noisier). So it is <em>not</em> a weak-monitor artifact. The difference: a frontier monitor reads <em>context</em> far better (C's windowed catch recovers to ~35/40 where the 8B collapsed to ~8–11), and it catches D well throughout. Still modest n (40/design), one task family, a synthetic canary.</li>
       <li><b>We are not claiming a chokepoint alone wins.</b> A naive chokepoint (C) only ties free-form B. The win is specific: <b>no single-call escape</b> <em>and</em> a monitor that reads trajectories. Either without the other is not enough.</li>
-      <li><b>D needs a monitor with memory.</b> The whole mechanism is that exfil must <em>compose</em>, so a monitor that reads trajectories is required — a purely per-call monitor is the wrong tool for this design, by construction.</li>
-      <li><b>A tidy sandbox.</b> A synthetic canary, one benign task family, a closed environment. Whether the effect holds against a wider workload and a stronger monitor is the open question.</li>
+      <li><b>D's gain is largest with a monitor that reads sequences — but a strong monitor needs them less.</b> On the cheap 8B monitor, D's forced composition is best seen across a trajectory (per-call 29/40 → trajectory 40/40). A frontier monitor already catches the staged composition per-call (37/40), so trajectory monitoring matters most when the monitor is weak.</li>
+      <li><b>A tidy sandbox.</b> A synthetic canary, one benign task family, a closed environment. Whether the effect holds against a wider workload — more tasks, other monitors, real tools — is the open question.</li>
     </ul>
   </section>
 
