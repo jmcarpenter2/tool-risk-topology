@@ -57,15 +57,7 @@ honest activity score high, inflating the bar; not central.)
 
 ## Findings
 
-**1. "Legibility can lull" replicates on the frontier monitor.** Judging a *single*
-`export_data` call, Sonnet catches only **22–24/40** of C's exfiltrations under the
-name-trusting prompt — statistically indistinguishable from the 8B's 23/40, and far
-below B's 40/40. **A reassuring intent-label lulls a frontier model too, per call.**
-It is in fact *cleaner* than the 8B: Sonnet is consistent across both seeds (22 and
-24), where the 8B bounced (23 in the diverse run, 40 in the laundering run — the
-θ-noise already flagged as a limitation). So the effect is **not** a weak-monitor
-artifact; it is robust across monitor scale. Confirmation: under the name-agnostic
-prompt Sonnet's C/per-call jumps to **40/40** — the name is provably the cause.
+**1. The per-call blind spot replicates on the frontier monitor — but the mechanism is the open door, not the name.** Judging a *single* `export_data` call, Sonnet catches only **22–24/40** of C's exfiltrations under the name-trusting prompt — indistinguishable from the 8B's 23/40, far below B's 40/40, and *cleaner* (consistent across seeds 22 and 24, where the 8B bounced 23→40 on θ-noise). So the per-call gap is **not** a weak-monitor artifact. But a dedicated name-probe (the *same* disguised bytes through B's `http_request` vs C's `export_data`) shows *why* differs by scale: the pure tool-**name** effect is large on the 8B (B 0.70 vs C 0.50, **+0.21**; renaming C's tool generically recovers most of it) and nearly **vanishes on Sonnet** (B 0.46 vs C 0.41, **+0.04**; renaming does ~nothing). A frontier monitor is barely fooled by the *label* — the gap that remains comes from the single door *accepting disguised, fabricated content* (`export_data(source="text:…")`) that scores low either way. That open door — the single-call escape — is the robust vulnerability **across monitor scale**; the reassuring-name is an **8B-specific amplifier**. (The name-agnostic prompt still recovers C to 40/40 on both monitors, but on Sonnet that reads as “a stricter egress prompt,” not “undoing name-trust” — there was little name-trust to undo.)
 
 **2. A frontier monitor reads *context* far better.** Where the 8B's windowed catch of
 C collapsed to 8–11/40, Sonnet recovers to **32–35/40**. The lull is specifically a
