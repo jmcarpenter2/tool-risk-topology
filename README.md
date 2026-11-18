@@ -313,6 +313,24 @@ adds is **context**: C's windowed catch recovers to ~35/40 (the 8B collapsed to 
 and D is caught well throughout (per-call 37/40 vs the 8B's 29). The recipe: a
 chokepoint + a trajectory-reading monitor, with no trust placed in the tool's name.
 
+**Name-lull probe** ([`control/name_probe.py`](src/tool_risk_topology/control/name_probe.py)).
+The "same stolen bytes score lower through C's intent-named `export_data` than through
+B's generic `http_request`" comparison, regenerable from fixed payloads on either backend:
+
+```bash
+# local 8B monitor (needs `ollama serve` + llama3.1:8b)
+python -m tool_risk_topology.control.name_probe --scorer ollama --num-samples 5
+# frontier monitor (needs ANTHROPIC_API_KEY in the environment)
+python -m tool_risk_topology.control.name_probe --scorer anthropic --model claude-sonnet-5
+```
+
+It averages over a fixed set of disguised exfil payloads and writes
+`reports/name_probe_<model>.json` (plus name-agnostic and renamed-tool controls). Honest
+caveat: on a *single* payload the gap is real but noisy (8B) and ~0 on a frontier monitor
+— so the robust, citable signal is the aggregate **catch rate** above (C 22–23/40 vs B
+40/40), not any single suspicion pair. Full writeup:
+[`reports/sigma_findings.md`](reports/sigma_findings.md) §3.
+
 ## Carving D — provenance-typed egress: forcing a legible composition
 
 The design that answers "legibility can lull": **D** keeps a single egress door but

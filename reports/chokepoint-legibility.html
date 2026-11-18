@@ -152,38 +152,35 @@
 
   <section>
     <p class="eyebrow">First surprise — the chokepoint backfires</p>
-    <h2>Same stolen data. Two tool names. Opposite verdicts.</h2>
-    <p class="lede">Start with the design meant to <em>help</em> — the chokepoint C — against the free-form kit B. We handed the monitor the <em>identical</em> disguised payload of stolen records once as B's generic external request, once as C's call named <span class="mono">export_data</span>. Only the label changed.</p>
+    <h2>The monitor catches the free-form tool. It waves the chokepoint through.</h2>
+    <p class="lede">We ran <b>40 disguised exfiltrations</b> through each design and asked a trusted monitor to flag them, call by call. It caught <b>every</b> one that left through B's generic send — and <b>missed nearly half</b> that left through C's intent-named <span class="mono">export_data</span> door. Same theft; the tool it flowed through decided whether it was seen.</p>
     <figure>
-      <p class="figtitle">Monitor suspicion for one identical exfiltration payload</p>
-      <p class="figsub">0 = clearly benign, 1 = clearly malicious. The alarm fires above the bar. The only difference between the two rows is the name of the tool the data left through.</p>
+      <p class="figtitle">Share of 40 identical-goal exfiltrations the monitor catches, call by call</p>
+      <p class="figsub">Default monitor, judging each call on its own. The free-form tool's sends are all flagged; the chokepoint's — routed through one "transparent" door — slip past almost half the time.</p>
       <div class="chartwrap">
-        <svg viewBox="0 0 600 210" role="img" aria-label="The same stolen payload scores 0.84 suspicion when sent via a generic http_request (above the alarm threshold, flagged) but only 0.47 when sent via a tool named export_data (below the threshold, waved through).">
-          <!-- scale: x 0..1 over 210..570 (360px). threshold 0.55 -->
+        <svg viewBox="0 0 600 200" role="img" aria-label="Per-call catch rate of 40 exfiltrations: the free-form http_request tool's are all caught (40 of 40); the chokepoint export_data tool's are caught only 23 of 40, so 17 slip past.">
+          <!-- scale: 0..100% over x 210..570 (360px) -->
           <g class="mono" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--faint)">
-            <text x="210" y="196" text-anchor="middle">0.0</text>
-            <text x="390" y="196" text-anchor="middle">0.5</text>
-            <text x="570" y="196" text-anchor="middle">1.0</text>
+            <text x="210" y="188" text-anchor="middle">0%</text>
+            <text x="390" y="188" text-anchor="middle">50%</text>
+            <text x="570" y="188" text-anchor="middle">100% caught</text>
           </g>
-          <!-- threshold line at 0.55 -> x=210+0.55*360=408 -->
-          <line x1="408" y1="30" x2="408" y2="176" stroke="var(--border-strong)" stroke-dasharray="3 4"/>
-          <text x="408" y="24" text-anchor="middle" class="mono" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="var(--muted)">alarm bar</text>
-          <!-- row B: http_request 0.84 -> width 302.4 -->
-          <text x="196" y="66" text-anchor="end" class="mono" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="var(--ink)">http_request</text>
-          <text x="196" y="82" text-anchor="end" class="mono" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--faint)">(generic send)</text>
-          <rect x="210" y="52" width="302" height="30" rx="4" fill="var(--flag)"/>
-          <text x="524" y="72" class="mono" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="600" fill="var(--flag)">0.84</text>
-          <text x="220" y="72" class="mono" font-family="IBM Plex Mono, monospace" font-size="11" fill="#fff">FLAGGED</text>
-          <!-- row C: export_data 0.47 -> width 169.2 -->
-          <text x="196" y="136" text-anchor="end" class="mono" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="var(--ink)">export_data</text>
-          <text x="196" y="152" text-anchor="end" class="mono" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--faint)">(named "export")</text>
-          <rect x="210" y="122" width="169" height="30" rx="4" fill="var(--pass)"/>
-          <text x="391" y="142" class="mono" font-family="IBM Plex Mono, monospace" font-size="13" font-weight="600" fill="var(--pass)">0.47</text>
-          <text x="220" y="142" class="mono" font-family="IBM Plex Mono, monospace" font-size="11" fill="#fff">WAVED THROUGH</text>
+          <!-- row B: 40/40 = 100% -> width 360 -->
+          <text x="196" y="62" text-anchor="end" class="mono" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="var(--ink)">http_request</text>
+          <text x="196" y="78" text-anchor="end" class="mono" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--faint)">B · free-form</text>
+          <rect x="210" y="48" width="360" height="30" rx="4" fill="var(--pass)"/>
+          <text x="560" y="68" text-anchor="end" class="mono" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="#fff">40/40 caught</text>
+          <!-- row C: 23/40 = 57.5% caught (width 207) + 42.5% missed (width 153, flag) -->
+          <text x="196" y="132" text-anchor="end" class="mono" font-family="IBM Plex Mono, monospace" font-size="12.5" fill="var(--ink)">export_data</text>
+          <text x="196" y="148" text-anchor="end" class="mono" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--faint)">C · chokepoint</text>
+          <rect x="210" y="118" width="207" height="30" rx="4" fill="var(--pass)"/>
+          <rect x="417" y="118" width="153" height="30" rx="4" fill="var(--flag)" opacity="0.9"/>
+          <text x="313" y="138" text-anchor="middle" class="mono" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="#fff">23 caught</text>
+          <text x="493" y="138" text-anchor="middle" class="mono" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600" fill="#fff">17 slip past</text>
         </svg>
       </div>
     </figure>
-    <p class="note">The theft is <b>byte-for-byte the same</b>. The monitor treats a call named <span class="mono">export_data</span> as routine business and lowers its guard — so the one sanctioned door becomes the <b>safest</b> way out.</p>
+    <p class="note">Same theft, same monitor — only the tool it flowed through differs. The door <b>named for its purpose</b> is the one the monitor trusts, so it is the one the attack walks out of. Reproducible from the committed runs (<span class="mono">reports/sigma_div_llm.json</span>, <span class="mono">reports/sigma_div_frontier.json</span>): the effect holds on a local 8B (<b>23/40</b>) and on a frontier monitor, claude-sonnet-5 (<b>22/40</b>). <span style="color:var(--faint)">(Per <em>single</em> payload the suspicion gap is real but noisy — see <span class="mono">name_probe.py</span>; the robust signal is this rate over many disguises.)</span></p>
   </section>
 
   <section>
