@@ -1,4 +1,4 @@
-"""E1-T5 -- interface metrics: coverage rho, residual path-lengths, burden.
+"""interface metrics: coverage rho, residual path-lengths, burden.
 
 Given the block/choke/residual partition of ``C`` for an interface ``I``:
 

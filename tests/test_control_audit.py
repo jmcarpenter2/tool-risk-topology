@@ -1,4 +1,4 @@
-"""E4-T5 — audit threshold, FPR, safety, usefulness (pure math, host-runnable)."""
+"""audit threshold, FPR, safety, usefulness (pure math, host-runnable)."""
 
 from __future__ import annotations
 

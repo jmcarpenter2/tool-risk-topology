@@ -217,7 +217,7 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# E2 sandbox
+# sandbox
 sandbox/.env
 logs/
 *.eval

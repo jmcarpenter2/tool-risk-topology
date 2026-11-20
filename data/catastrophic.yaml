@@ -1,4 +1,4 @@
-# E1-T1 — Catastrophic effect set `C`.
+# Catastrophic effect set `C`.
 #
 # Each effect `c` is a directed (src -> sink) reachability we do not want a
 # carving to grant. `kind` groups them for reporting. Note that some pairs

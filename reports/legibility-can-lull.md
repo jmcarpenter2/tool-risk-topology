@@ -1,6 +1,6 @@
 # Scripted-attacker findings: legibility can lull the monitor
 
-This is the scripted-attacker line of work (the E6 follow-up). It set out to get a
+This is the scripted-attacker line of work (the follow-up to the live control eval). It set out to get a
 live, reproducible safety number for the chokepoint thesis — *does carving an
 agent's tools around one transparent `export_data` chokepoint (C) make misuse more
 catchable than a bag of general-purpose tools (B)?* — by scripting the attack
@@ -108,7 +108,7 @@ is why §2 uses a variant library, not a bigger n.
 
 ## What this means for the thesis
 
-- **Structural claim (E1): holds.** C funnels all catastrophic egress into one
+- **Structural claim (static analyzer): holds.** C funnels all catastrophic egress into one
   auditable door (residual 0/9, ρ=1.0). True by construction, unchanged.
 - **Strong empirical claim — "chokepoint ⇒ *more* catchable than free-form": not
   supported.** With diverse attacks and real statistics, C is at best on par with

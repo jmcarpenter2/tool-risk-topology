@@ -1,4 +1,4 @@
-"""E3-T3 — Carving B: ~7 atomic typed primitives.
+"""Carving B: ~7 atomic typed primitives.
 
 Capability-equivalent to A on the benign set, but each call is individually
 legible. Nothing forces a catastrophic flow through a transparent chokepoint, so

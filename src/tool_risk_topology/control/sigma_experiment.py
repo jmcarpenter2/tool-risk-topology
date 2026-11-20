@@ -15,7 +15,7 @@ the send, so its windowed safety falls with σ; **C** (transparent export_data
 chokepoint) declares what leaves per-call, so it stays flat and high.
 
 Three modes (the sandbox is network-isolated, so the LLM monitor can only run on
-the host — same split as E6):
+the host — same split as the control sweep):
   gen    — run INSIDE the harness: generate live trajectories (real Z) → JSONL.
   score  — run on the HOST: score the JSONL with heuristic or ollama → report JSON.
   plot   — run on the HOST: render the safety-vs-σ figure from the report.

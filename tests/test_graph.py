@@ -1,4 +1,4 @@
-"""E1-T3 — reachability graph builds and answers source->sink correctly."""
+"""reachability graph builds and answers source->sink correctly."""
 
 from __future__ import annotations
 

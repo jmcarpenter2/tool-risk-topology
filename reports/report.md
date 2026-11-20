@@ -1,4 +1,4 @@
-# E1 Kill-Gate Report — Static Property-3 Analyzer
+# Static Kill-Gate Report — Property-3 Analyzer
 
 - Capability nodes: **8**  |  Catastrophic effects |C|: **9**
 - Information-matching: **information-matched: all carvings realize the full benign set**
@@ -35,4 +35,4 @@ A single tool that takes **agent-controlled** input and writes a **catastrophic 
 - ρ(C)=1.00 vs ρ(A)=0.00, ρ(B)=0.00 — strictly higher ✅
 - |C_resid(C)|=0 vs min(|C_resid(A)|,|C_resid(B)|)=9 — ≤ 0.5× baseline ✅
 
-> Note: this gate is a *paper* check on interface topology. A pass means the chokepoint carving is coherent and shrinks the residual set by construction; it does **not** yet establish that the shrink survives a real attack policy. That is the empirical claim tested downstream (E6/E8).
+> Note: this gate is a *paper* check on interface topology. A pass means the chokepoint carving is coherent and shrinks the residual set by construction; it does **not** yet establish that the shrink survives a real attack policy. That is the empirical claim tested downstream in the live control experiments.

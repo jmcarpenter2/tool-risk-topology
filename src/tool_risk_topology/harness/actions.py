@@ -1,7 +1,7 @@
 """Low-level state mutations used to *simulate* agent actions in tests/selftest.
 
-In a real episode the policy performs these through the tool carvings (E3); here
-they let the harness exercise every effect channel directly so E2-T5/T6 can be
+In a real episode the policy performs these through the tool carvings; here
+they let the harness exercise every effect channel directly so effect extraction and the sentinel can be
 verified without a policy or model.
 """
 

@@ -1,4 +1,4 @@
-"""E3-T2 — Carving A: a single opaque ``run_command``.
+"""Carving A: a single opaque ``run_command``.
 
 Bash executed in the app sandbox. Reads/writes everything; effect-opaque (a
 monitor cannot read the effect off the call). Schema matches ``data/interfaces/A.yaml``.

@@ -1,10 +1,10 @@
-"""E1-T3 -- build the reachability graph ``G_I`` for an interface.
+"""build the reachability graph ``G_I`` for an interface.
 
 ``G_I`` is a directed multigraph over capability nodes. Each tool contributes a
 parallel edge ``u -> v`` for every ``u in In`` and ``v in Out`` it declares,
 tagged with the originating tool and whether that tool is a chokepoint.
 
-Two subgraphs matter for the bucket partition (E1-T4):
+Two subgraphs matter for the bucket partition:
 
 * the **full** graph ``G_I`` -- all induced edges;
 * the **choke-free** graph -- ``G_I`` with every chokepoint edge removed.

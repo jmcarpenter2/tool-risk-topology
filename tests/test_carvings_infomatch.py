@@ -1,4 +1,4 @@
-"""E3-T5 (static half) — runnable carvings match their E1 schemas and are
+"""Static half — runnable carvings match their static schemas and are
 information-matched. Host-runnable: only schemas/graphs are touched, no services.
 """
 

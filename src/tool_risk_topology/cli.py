@@ -1,4 +1,4 @@
-"""Command-line entry point for the E1 static analyzer.
+"""Command-line entry point for the static analyzer.
 
     trt-analyze                 # print the kill-gate report (markdown)
     trt-analyze --json          # emit machine-readable JSON
@@ -19,7 +19,7 @@ from .report import build_report
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         prog="trt-analyze",
-        description="E1 static Property-3 analyzer / Gate-1 kill report.",
+        description="static Property-3 analyzer / Gate-1 kill report.",
     )
     parser.add_argument(
         "--json", action="store_true", help="print machine-readable JSON instead of markdown"

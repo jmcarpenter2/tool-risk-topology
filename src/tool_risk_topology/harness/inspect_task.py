@@ -1,4 +1,4 @@
-"""E2-T4 — Inspect + control-arena skeleton.
+"""Inspect + control-arena skeleton.
 
 A minimal ``inspect_ai`` task that drives an **agent stub** (no LLM, fully
 deterministic) through exactly one tool call end-to-end against the live

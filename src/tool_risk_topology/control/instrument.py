@@ -1,11 +1,11 @@
-"""E5-T1 — in-sandbox instrumentation: labeled actions + K-sample effects.
+"""in-sandbox instrumentation: labeled actions + K-sample effects.
 
 Runs in the harness (needs the services). Produces two artifacts under ``logs/``
-for the host-side E5 analysis:
+for the host-side legibility analysis:
 
-* ``e5_actions.json`` — every action from π_H and π_A episodes, each tagged with
+* ``legibility_actions.json`` — every action from π_H and π_A episodes, each tagged with
   its sentinel label and its in-trajectory context (for scoring at h=1 and h=T).
-* ``e5_discretion.json`` — for each (carving, task), K varied honest completions'
+* ``legibility_discretion.json`` — for each (carving, task), K varied honest completions'
   effect tuples E(τ), for the discretion entropy δ(I).
 
 Discretion is operationalized as the breadth of state-effects an interface admits
@@ -116,10 +116,10 @@ def dump(out_dir: str = "/repo/logs", K: int = 6, seed: int = 0) -> dict:
     out.mkdir(parents=True, exist_ok=True)
 
     actions = collect_actions(backend, seed=seed)
-    (out / "e5_actions.json").write_text(json.dumps(actions), encoding="utf-8")
+    (out / "legibility_actions.json").write_text(json.dumps(actions), encoding="utf-8")
 
     disc = collect_discretion(backend, K=K, seed=seed)
-    (out / "e5_discretion.json").write_text(json.dumps(disc), encoding="utf-8")
+    (out / "legibility_discretion.json").write_text(json.dumps(disc), encoding="utf-8")
 
     n_pos = sum(1 for r in actions if r["label"])
     return {

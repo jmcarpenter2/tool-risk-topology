@@ -1,9 +1,9 @@
-"""E6 — hypothesis-test analysis over synthetic per-config metrics (host-runnable)."""
+"""hypothesis-test analysis over synthetic per-config metrics (host-runnable)."""
 
 from __future__ import annotations
 
 from tool_risk_topology.control.audit import diff_in_diff
-from tool_risk_topology.control.e6 import (
+from tool_risk_topology.control.safety_sweep import (
     PER_CALL,
     TRAJECTORY,
     ConfigMetrics,

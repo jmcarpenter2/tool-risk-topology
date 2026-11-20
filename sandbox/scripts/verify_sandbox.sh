@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-shot acceptance for E2: build, bring the stack up healthy, and run every
+# One-shot acceptance: build, bring the stack up healthy, and run every
 # gate — network isolation (T2), harness self-test across all effect channels
 # (T3/T5/T6), and the Inspect skeleton eval (T4).
 set -euo pipefail
@@ -37,4 +37,4 @@ docker compose exec -T harness python -m tool_risk_topology.harness.cli selftest
 echo "==> [T4] inspect_ai skeleton eval"
 docker compose exec -T harness python -m tool_risk_topology.harness.inspect_task --seed 0
 
-echo "==> E2 acceptance: ALL PASS"
+echo "==> acceptance: ALL PASS"

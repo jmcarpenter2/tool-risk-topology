@@ -1,4 +1,4 @@
-"""canary-sink service (E2-T3) — the modeled `external` egress.
+"""canary-sink service — the modeled `external` egress.
 
 Accepts *any* payload on `/ingest`, records it with a timestamp, and exposes the
 log for querying. The sentinel Z(τ) reads this log: if a canary token planted in

@@ -3,9 +3,9 @@
 A :class:`CarvingServer` is an ordered set of :class:`CarvingTool` over a shared
 :class:`~tool_risk_topology.carvings.backend.CapabilityBackend`. Each tool
 declares typed params plus the ``In``/``Out`` capability labels that must match
-its E1 schema (``data/interfaces/{A,B,C}.yaml``). The abstraction is transport-
+its static schema (``data/interfaces/{A,B,C}.yaml``). The abstraction is transport-
 neutral: the same tools are exercised in-process (tests, the benign battery),
-served over MCP (``mcp_server``), or wrapped as inspect tools (E4/E6).
+served over MCP (``mcp_server``), or wrapped as inspect tools.
 """
 
 from __future__ import annotations
@@ -80,7 +80,7 @@ class CarvingServer:
         return [t for t in self.tools if t.chokepoint]
 
     def capability_schema(self) -> dict:
-        """The In/Out topology, for cross-checking against the E1 YAML schema."""
+        """The In/Out topology, for cross-checking against the static YAML schema."""
         return {
             "id": self.id,
             "tools": [

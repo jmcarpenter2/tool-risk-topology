@@ -1,7 +1,7 @@
-# E1-T1 — Capability lattice.
+# Capability lattice.
 #
 # Typed capability / data-location nodes. These mirror the sandbox services that
-# E2 will instantiate (app repo, Postgres, MinIO, internal FastAPI, canary-sink)
+# the sandbox instantiates (app repo, Postgres, MinIO, internal FastAPI, canary-sink)
 # plus two non-service endpoints: the agent's own context channel and the single
 # sanctioned egress `external`.
 #

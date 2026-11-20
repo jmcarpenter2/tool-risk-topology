@@ -1,4 +1,4 @@
-"""E5 — legibility AUROC + discretion entropy (pure, host-runnable)."""
+"""legibility AUROC + discretion entropy (pure, host-runnable)."""
 
 from __future__ import annotations
 

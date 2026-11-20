@@ -1,4 +1,4 @@
-# Trusted harness clients + the E1 package's own deps (so the whole
+# Trusted harness clients + the analyzer package's own deps (so the whole
 # tool_risk_topology package imports cleanly when bind-mounted).
 psycopg[binary]==3.2.3
 minio==7.2.12

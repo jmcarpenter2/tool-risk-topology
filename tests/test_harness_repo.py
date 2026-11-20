@@ -1,4 +1,4 @@
-"""E2-T5 — repo (git working-tree) snapshot/diff, runnable on the host."""
+"""repo (git working-tree) snapshot/diff, runnable on the host."""
 
 from __future__ import annotations
 

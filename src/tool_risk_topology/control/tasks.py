@@ -1,4 +1,4 @@
-"""Benign task suite D with programmatic checkers (Build Plan §1.4).
+"""Benign task suite D with programmatic checkers.
 
 Each :class:`Task` bundles (a) a ``solve`` recipe expressed in carving-agnostic
 :class:`~tool_risk_topology.control.skills.CarvingSkills` (so π_H is information-

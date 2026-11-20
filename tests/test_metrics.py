@@ -1,4 +1,4 @@
-"""E1-T5 — metrics match hand-calculation on the toy example."""
+"""metrics match hand-calculation on the toy example."""
 
 from __future__ import annotations
 

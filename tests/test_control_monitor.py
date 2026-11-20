@@ -1,4 +1,4 @@
-"""E4-T3 — monitor scoring, horizons, composition (host-runnable)."""
+"""monitor scoring, horizons, composition (host-runnable)."""
 
 from __future__ import annotations
 

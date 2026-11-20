@@ -13,7 +13,7 @@
 # Benign reach is unchanged: the benign set needs repo/object_store/pg_prod ->
 # external (sanctioned exports), none of which require agent -> external, so D
 # stays information-matched. On paper D matches C (residual empty, rho = 1.0);
-# the difference is a runtime monitorability property E1 does not model — plus the
+# the difference is a runtime monitorability property the static analyzer does not model — plus the
 # removed agent -> external edge.
 
 id: D

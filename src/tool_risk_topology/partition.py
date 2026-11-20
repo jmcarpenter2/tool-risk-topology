@@ -1,4 +1,4 @@
-"""E1-T4 -- partition the catastrophic set into block / choke / residual.
+"""partition the catastrophic set into block / choke / residual.
 
 For each catastrophic effect ``c = (src, sink)`` and interface ``I`` (ref §1.7):
 
@@ -12,7 +12,7 @@ For each catastrophic effect ``c = (src, sink)`` and interface ``I`` (ref §1.7)
   every chokepoint. This is the residual monitoring burden -- it needs
   composition/trajectory-aware monitoring, not a single call.
 
-The residual set ``C_resid`` is the quantity the KILL GATE (E1-T6) asks carving
+The residual set ``C_resid`` is the quantity the KILL GATE asks carving
 C to shrink relative to A and B.
 """
 

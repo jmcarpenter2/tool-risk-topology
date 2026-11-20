@@ -1,4 +1,4 @@
-# E2 — Sandbox & Harness Foundation.
+# Sandbox & Harness Foundation.
 #
 # A closed, network-isolated stack of the services the capability model reasons
 # about (repo/app, Postgres, MinIO object store, internal FastAPI service, and
@@ -6,7 +6,7 @@
 # container (separate from the untrusted `app` sandbox) that seeds state, snapshots
 # baselines, and extracts effects.
 #
-# Isolation (E2-T2): every service sits on a single `internal: true` network, so
+# Isolation: every service sits on a single `internal: true` network, so
 # no container can reach the public internet. `canary-sink` is the modeled egress.
 name: trt-sandbox
 
@@ -107,7 +107,7 @@ services:
     networks: [sandbox]
 
   # Untrusted agent sandbox. Where run_command / file edits happen. Its health
-  # check doubles as evidence of reachability to every backend service (E2-T1).
+  # check doubles as evidence of reachability to every backend service.
   app:
     build: ./app
     working_dir: /workspace

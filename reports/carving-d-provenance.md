@@ -18,7 +18,7 @@ call declares `source_class` + `sensitivity`. Two consequences:
    **composition**. That is exactly the behaviour the original hypothesis says a good
    interface should force, and that a trajectory monitor can read.
 
-## E1 (static): D ⊇ C, and leaner
+## Static analysis: D ⊇ C, and leaner
 
 D passes the kill-gate (residual 0, ρ=1.0) like C, but `B_mon = 3` vs C's 4. The
 missing edge is `agent → external`: **that edge *is* the single-call escape hatch**,
@@ -64,7 +64,7 @@ monitor (name-trusting — the hardest case for D), catch rate with 95% CIs:
    legible to a trajectory monitor. The topology does what it was meant to.
 
 The property that actually matters is therefore **"no single-call escape → force a
-legible composition,"** and E1 already encodes it as the `agent → external` edge.
+legible composition,"** and the static analyzer already encodes it as the `agent → external` edge.
 
 ## Honest limitations
 

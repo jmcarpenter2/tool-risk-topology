@@ -1,4 +1,4 @@
-"""E1-T4 — bucket partition on toy graphs with known partitions."""
+"""bucket partition on toy graphs with known partitions."""
 
 from __future__ import annotations
 

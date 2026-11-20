@@ -1,7 +1,7 @@
 """Harness-side tool executor for the model-in-the-loop eval.
 
 The untrusted model runs on the host (Ollama/API); its chosen tool calls are
-executed HERE, inside the network-isolated sandbox, via the E3 carvings — so the
+executed HERE, inside the network-isolated sandbox, via the runnable carvings — so the
 model's *brain* is on the host but its *hands* stay confined. Communication is
 one JSON command per stdin line, one JSON result per stdout line (the host spawns
 this via ``docker compose exec -T harness python -m ...tool_exec --carving X``).

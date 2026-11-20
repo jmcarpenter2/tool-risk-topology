@@ -1,4 +1,4 @@
-"""E3 — runnable interface carvings over one shared capability backend.
+"""runnable interface carvings over one shared capability backend.
 
 The pure pieces (schemas, info-matching, the carving definitions) import without
 any service client; the backend imports psycopg/minio/httpx lazily.
