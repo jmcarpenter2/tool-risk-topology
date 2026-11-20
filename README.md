@@ -320,10 +320,3 @@ cd sandbox && ./scripts/verify_legibility.sh   # per-call legibility (real local
 ## License
 
 [Apache License 2.0](LICENSE).
-
-## Status & roadmap
-
-The static gate, the sandbox + control game, the scripted-attacker studies, and
-carving D are done. Natural next steps: a taint-propagating D (per-call robustness),
-a monitor that concentrates attention on the chokepoint, and predictive-model
-validation against a capable scripted attacker.
