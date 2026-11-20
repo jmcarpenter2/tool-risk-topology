@@ -1,4 +1,4 @@
-"""E4 — the control game: policies, monitor, audit.
+"""the control game: policies, monitor, audit.
 
 Pure pieces (trajectory, monitor scoring, audit math) import without any service
 client; policies/skills act on the sandbox through the carvings + harness.

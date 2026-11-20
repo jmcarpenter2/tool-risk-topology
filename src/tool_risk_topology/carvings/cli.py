@@ -1,6 +1,6 @@
 """Carvings CLI — run inside the harness container.
 
-    python -m tool_risk_topology.carvings.cli info-match   # static E3-T5 (no services)
+    python -m tool_risk_topology.carvings.cli info-match   # static info-matching check (no services)
     python -m tool_risk_topology.carvings.cli selftest      # live benign battery + probes
     python -m tool_risk_topology.carvings.cli mcp-smoke      # runnable MCP server round-trip
 

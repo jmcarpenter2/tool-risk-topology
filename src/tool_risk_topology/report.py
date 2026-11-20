@@ -1,9 +1,9 @@
-"""E1-T6 -- the KILL-GATE report.
+"""The static kill-gate report.
 
 Gate 1 asks a single paper question: does the chokepoint carving C shrink the
 residual monitoring burden relative to the opaque (A) and atomic (B) carvings?
 
-PASS criterion (ref backlog E1-T6):
+PASS criterion:
 
 * ``rho(C) > rho(A)`` **and** ``rho(C) > rho(B)`` -- C covers strictly more of
   the catastrophic set; **and**
@@ -93,7 +93,7 @@ class KillGateReport:
     # ---- human-readable ------------------------------------------------
     def to_markdown(self) -> str:
         lines: List[str] = []
-        lines.append("# E1 Kill-Gate Report — Static Property-3 Analyzer\n")
+        lines.append("# Static Kill-Gate Report — Property-3 Analyzer\n")
         lines.append(
             f"- Capability nodes: **{self.lattice_size}**  |  "
             f"Catastrophic effects |C|: **{self.catastrophic_size}**"
@@ -159,7 +159,7 @@ class KillGateReport:
             "means the chokepoint carving is coherent and shrinks the residual "
             "set by construction; it does **not** yet establish that the shrink "
             "survives a real attack policy. That is the empirical claim tested "
-            "downstream (E6/E8)."
+            "downstream in the live control experiments."
         )
         return "\n".join(lines)
 
@@ -204,7 +204,7 @@ def build_report(
     lattice: Optional[Lattice] = None,
     interfaces: Optional[Dict[str, Interface]] = None,
 ) -> KillGateReport:
-    """Run the full E1 pipeline and produce the kill-gate report."""
+    """Run the full analyzer pipeline and produce the kill-gate report."""
     if lattice is None:
         lattice = load_default_lattice()
     if interfaces is None:

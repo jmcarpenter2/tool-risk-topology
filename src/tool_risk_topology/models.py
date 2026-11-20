@@ -1,10 +1,10 @@
-"""Core data model for the static Property-3 analyzer (E1).
+"""Core data model for the static Property-3 analyzer.
 
 The analyzer reasons about tool *interfaces* purely from their signatures:
 no agent, no models, no GPU. Everything is a typed capability/data-location
 graph and a set of catastrophic ``src -> sink`` effects.
 
-Terminology (ref Build Plan §1.7, §2.6):
+Terminology:
 
 * **Node** -- a typed capability / data-location endpoint (e.g. ``repo``,
   ``pg_prod``, ``env_secrets``, the agent's own context ``agent``, and the

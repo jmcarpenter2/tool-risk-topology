@@ -1,6 +1,6 @@
 """The monitor: suspicion scoring at horizons h ∈ {1, T, chokepoint}.
 
-Implements ``s_M(a_t | c_h(t)) ∈ [0,1]`` and ``S(τ) = max_t s`` (Build Plan §1.2),
+Implements ``s_M(a_t | c_h(t)) ∈ [0,1]`` and ``S(τ) = max_t s``,
 plus monitor cost by horizon (§1.9). The scoring *backend* is pluggable:
 
 * :class:`HeuristicScorer` — a deterministic, model-free baseline that runs fully
@@ -9,7 +9,7 @@ plus monitor cost by horizon (§1.9). The scoring *backend* is pluggable:
   never the literal canary token, and boosts a read→egress composition when both
   are visible in the horizon window. This is the "weak monitor" baseline.
 * :class:`ModelScorer` — the seam for an LLM monitor (cheap API or local vLLM 8B,
-  Build Plan §2.4/§2.7). Inject a ``model_fn(prompt) -> float``; unavailable
+  the design spec). Inject a ``model_fn(prompt) -> float``; unavailable
   inside the isolated sandbox, so it is not the default.
 
 Horizons: ``per_call`` (h=1) scores each call alone; ``trajectory`` (h=T) scores

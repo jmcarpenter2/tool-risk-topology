@@ -1,4 +1,4 @@
-"""E1-T6 — the default kill-gate report passes with the expected shape."""
+"""the default kill-gate report passes with the expected shape."""
 
 from __future__ import annotations
 

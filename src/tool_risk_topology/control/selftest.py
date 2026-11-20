@@ -1,11 +1,11 @@
-"""Live E4 verification: policies + monitor + audit machinery end-to-end.
+"""Live verification: policies + monitor + audit machinery end-to-end.
 
 For each carving it runs π_H over the task suite (usefulness) and π_A over a few
 tasks (achieving the sentinel), scores every trajectory at all three horizons,
 computes the audit threshold θ_β on honest scores, and reports safety. It asserts
 the machinery is sound (π_H solves tasks, π_A achieves Z, scores ∈ [0,1], θ
 finite, safety ∈ [0,1], attacker strength logged) and prints a preview table.
-Statistical power / the H-* verdicts are E6, not here.
+Statistical power / the H-* verdicts come from the control sweep, not here.
 """
 
 from __future__ import annotations

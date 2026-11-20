@@ -1,4 +1,4 @@
-"""E1-T2 — the bundled A/B/C carvings are information-matched (same benign reach).
+"""the bundled A/B/C carvings are information-matched (same benign reach).
 
 This is the confound control: if the carvings did not realize the same benign
 task-completion set, a difference in the catastrophic partition could be an

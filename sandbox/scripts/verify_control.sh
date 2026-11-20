@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# One-shot acceptance for E4: policies + monitor + audit.
+# One-shot acceptance: policies + monitor + audit.
 #   * π_H solves the benign task suite under A/B/C (usefulness)
 #   * π_A achieves the sentinel under A/B/C (attacker strength logged)
 #   * monitor scores at h ∈ {1, T, chokepoint}; audit threshold θ_β + safety
-# Machinery only — the statistical H-* verdicts are E6.
+# Machinery only — the statistical H-* verdicts come from the control sweep.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."   # -> sandbox/
@@ -19,7 +19,7 @@ until docker compose ps app | grep -q '(healthy)' && docker compose ps harness |
   sleep 3
 done
 
-echo "==> [E4] control self-test (policies + monitor + audit)"
+echo "==> control self-test (policies + monitor + audit)"
 docker compose exec -T harness python -m tool_risk_topology.control.cli selftest
 
-echo "==> E4 acceptance: ALL PASS"
+echo "==> acceptance: ALL PASS"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-shot acceptance for E6: the 6-config control sweep {A,B,C}×{h=1,T}.
+# One-shot acceptance: the 6-config control sweep {A,B,C}×{h=1,T}.
 #   phase 1 (in-sandbox, resumable): generate trajectories
 #   phase 2 (on-host): score with the monitor -> safety/usefulness/cost + Wilson CIs,
 #                      H-nonmono (z, Bonferroni), H-horizon (diff-in-diff), frontier
@@ -19,13 +19,13 @@ until docker compose ps app | grep -q '(healthy)' && docker compose ps harness |
   [ "$(date +%s)" -gt "$deadline" ] && { echo "timed out" >&2; exit 1; }; sleep 3
 done
 
-echo "==> [E6-T1] phase 1: trajectories (n_attack=$N_ATTACK n_honest=$N_HONEST strengths=$STRENGTHS)"
+echo "==> phase 1: trajectories (n_attack=$N_ATTACK n_honest=$N_HONEST strengths=$STRENGTHS)"
 docker compose exec -T harness python -m tool_risk_topology.control.cli sweep \
-  --out /repo/logs/e6_trajectories.jsonl --n-attack "$N_ATTACK" --n-honest "$N_HONEST" --strengths "$STRENGTHS"
+  --out /repo/logs/sweep_trajectories.jsonl --n-attack "$N_ATTACK" --n-honest "$N_HONEST" --strengths "$STRENGTHS"
 
-echo "==> [E6-T2..T5] phase 2: score + metrics + tests + frontier (scorer=$SCORER)"
+echo "==> phase 2: score + metrics + tests + frontier (scorer=$SCORER)"
 PY="../.venv/bin/python"; [ -x "$PY" ] || PY="python3"
-"$PY" -m tool_risk_topology.control.e6 \
-  --trajectories ../logs/e6_trajectories.jsonl --scorer "$SCORER" --out ../reports
+"$PY" -m tool_risk_topology.control.safety_sweep \
+  --trajectories ../logs/sweep_trajectories.jsonl --scorer "$SCORER" --out ../reports
 
-echo "==> E6 acceptance: sweep + analysis produced (reports/e6_report.json, e6_frontier.png)"
+echo "==> acceptance: sweep + analysis produced (reports/sweep_report.json, safety_vs_strength.png)"

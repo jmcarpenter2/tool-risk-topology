@@ -1,4 +1,4 @@
-"""E1-T1 -- load the capability lattice, catastrophic set ``C`` and benign set.
+"""load the capability lattice, catastrophic set ``C`` and benign set.
 
 Reads three YAML files:
 

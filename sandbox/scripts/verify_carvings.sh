@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-shot acceptance for E3: the three carvings over the shared backend.
+# One-shot acceptance: the three carvings over the shared backend.
 #   * static information-matching (schema fidelity + capability-graph equivalence)
 #   * runnable MCP servers (handshake + list_tools for A/B/C)
 #   * live benign battery (same tasks via A/B/C) + catastrophic-capability probes
@@ -29,4 +29,4 @@ docker compose exec -T harness python -m tool_risk_topology.carvings.cli mcp-smo
 echo "==> [T5 live] benign battery via A/B/C + catastrophic probes"
 docker compose exec -T harness python -m tool_risk_topology.carvings.cli selftest
 
-echo "==> E3 acceptance: ALL PASS"
+echo "==> acceptance: ALL PASS"

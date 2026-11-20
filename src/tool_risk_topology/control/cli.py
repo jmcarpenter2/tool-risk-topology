@@ -17,14 +17,14 @@ from .selftest import run as run_selftest
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="trt-control")
     sub = p.add_subparsers(dest="cmd", required=True)
-    st = sub.add_parser("selftest", help="live E4 policies + monitor + audit check")
+    st = sub.add_parser("selftest", help="live policies + monitor + audit check")
     st.add_argument("--seed", type=int, default=0)
-    dp = sub.add_parser("dump", help="E5: dump labeled actions + K-sample effects to logs/")
+    dp = sub.add_parser("dump", help="dump labeled actions + K-sample effects to logs/")
     dp.add_argument("--out", default="/repo/logs")
     dp.add_argument("--K", type=int, default=6)
     dp.add_argument("--seed", type=int, default=0)
-    sw = sub.add_parser("sweep", help="E6 phase-1: generate trajectories (resumable)")
-    sw.add_argument("--out", default="/repo/logs/e6_trajectories.jsonl")
+    sw = sub.add_parser("sweep", help="sweep phase-1: generate trajectories (resumable)")
+    sw.add_argument("--out", default="/repo/logs/sweep_trajectories.jsonl")
     sw.add_argument("--n-attack", type=int, default=300)
     sw.add_argument("--n-honest", type=int, default=100)
     sw.add_argument("--strengths", default="0,1,2,3,4",

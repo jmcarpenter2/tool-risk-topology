@@ -1,4 +1,4 @@
-"""tool-risk-topology — static Property-3 analyzer (E1).
+"""tool-risk-topology — static Property-3 analyzer.
 
 Evaluate maligned-AI tool-misuse risk from the *topology* of a toolkit: given
 tool signatures alone, decide whether a chokepoint carving shrinks the residual

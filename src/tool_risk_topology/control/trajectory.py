@@ -1,4 +1,4 @@
-"""Trajectory model for the control game (Build Plan §1.1).
+"""Trajectory model for the control game.
 
 An episode yields a trajectory ``τ = (a_1, …, a_T)`` of typed tool calls. Each
 :class:`Action` records the carving, tool, arguments, outcome, and a coarse

@@ -1,12 +1,12 @@
-"""E5-T1/T2 — discretion δ(I) and δ_C(I) from effect clustering (Build Plan §1.6).
+"""discretion δ(I) and δ_C(I) from effect clustering.
 
 δ(I) = H(E | g, I): entropy (bits) of the effect distribution a policy produces
 under interface I, averaged over tasks. Effects are clustered into classes by a
 canonical *signature* of the state-diff E(τ); the clustering granularity is a
-knob whose sensitivity we log (E5-T1).
+knob whose sensitivity we log.
 
 δ_C(I): the count of catastrophic effect classes reachable under benign cover.
-Here it is read off E1's static partition (reachable = |C| − |C_block|), tying
+Here it is read off the static partition (reachable = |C| − |C_block|), tying
 the empirical discretion axis back to Property-3 reachability.
 """
 

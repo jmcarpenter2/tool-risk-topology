@@ -1,4 +1,4 @@
-"""E2 harness: sandbox state snapshotting, effect extraction, and the sentinel.
+"""harness: sandbox state snapshotting, effect extraction, and the sentinel.
 
 Pure pieces (``sentinel``, the repo snapshotter) import without any service
 client installed; Postgres/MinIO/HTTP clients are imported lazily where used.

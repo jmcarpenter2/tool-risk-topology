@@ -1,4 +1,4 @@
-"""Real-LLM monitor backend (Build Plan §2.4 "local ~8B monitor").
+"""Real-LLM monitor backend.
 
 ``OllamaScorer`` implements the monitor scorer contract ``(action, context) ->
 float in [0,1]`` by prompting a local model served by Ollama. It runs **host-side**

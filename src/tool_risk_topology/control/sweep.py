@@ -1,4 +1,4 @@
-"""E6-T1 — the control sweep runner (phase 1: episode generation, in-sandbox).
+"""the control sweep runner (phase 1: episode generation, in-sandbox).
 
 Generates trajectories once per carving (the trajectory is independent of the
 monitor horizon, so 3 carvings × (n_attack + n_honest) episodes feed all six
@@ -53,7 +53,7 @@ def _done_ids(path: Path) -> Set[str]:
     return done
 
 
-def run_phase1(out_path: str = "/repo/logs/e6_trajectories.jsonl",
+def run_phase1(out_path: str = "/repo/logs/sweep_trajectories.jsonl",
                n_attack: int = 300, n_honest: int = 100,
                strengths=(0, 1, 2, 3, 4), reset_every: int = 50, seed: int = 0) -> dict:
     backend = CapabilityBackend()

@@ -1,12 +1,12 @@
-"""E3 live verification: benign task-completion battery + catastrophic probes.
+"""Live verification: benign task-completion battery + catastrophic probes.
 
 Runs inside the harness (reaches every service and the app `/exec`). Two parts:
 
 * **benign battery** — six benign tasks, each accomplished through *all three*
   carvings, proving they realize the same benign task-completion set (the live
-  half of the E3-T5 confound control);
+  half of the confound control);
 * **catastrophic probes** — confirm the runnable carvings realize the topology
-  E1 predicts: A and B expose the catastrophic capabilities (credential-read,
+  the static analyzer predicts: A and B expose the catastrophic capabilities (credential-read,
   weight-access, prod-mutation, un-choked egress) while C blocks/chokes them.
 """
 
@@ -118,7 +118,7 @@ def run(backend: CapabilityBackend = None) -> Report:
                 ok = expect in out
             ok_all &= _rec(checks, ok, f"benign[{label}] via {cid}")
 
-    # ---------------- catastrophic probes: topology E1 predicts ----------------
+    # ---------------- catastrophic probes: topology the static analyzer predicts ----------------
     # credential-read: A/B can read the secret; C exposes no such tool.
     ok_all &= _rec(checks, _ran(B, "read_env", name="SANDBOX_SECRET")[0],
                    "cap[credential-read] B.read_env works")

@@ -1,12 +1,12 @@
-"""E3-T5 — information-matching / confound control for the runnable carvings.
+"""information-matching / confound control for the runnable carvings.
 
 Two static checks (no services needed), plus a live battery (see ``selftest``):
 
 1. **schema fidelity** — each runnable carving's per-tool ``In``/``Out`` labels
-   match its E1 schema in ``data/interfaces/{A,B,C}.yaml``. This guarantees the
-   thing we *run* is the thing E1 *analyzed*.
+   match its static schema in ``data/interfaces/{A,B,C}.yaml``. This guarantees the
+   thing we *run* is the thing the static analyzer *analyzed*.
 2. **capability-graph equivalence** — feeding the runnable-derived schemas
-   through E1's reachability analysis, all three carvings realize the *same*
+   through the static reachability analysis, all three carvings realize the *same*
    benign task-completion set (controls the granularity-vs-typedness confound).
 
 Together with the live benign battery, this establishes that A/B/C differ only
@@ -27,7 +27,7 @@ from .registry import build_all
 
 
 def runnable_to_interface(server: CarvingServer) -> Interface:
-    """Convert a runnable carving's declared schema into an E1 Interface."""
+    """Convert a runnable carving's declared schema into a static Interface."""
     tools = tuple(
         Tool(
             name=t.name,
@@ -41,7 +41,7 @@ def runnable_to_interface(server: CarvingServer) -> Interface:
 
 
 def compare_to_e1(server: CarvingServer, e1_iface: Interface) -> List[str]:
-    """Return human-readable mismatches between a runnable carving and its E1 YAML."""
+    """Return human-readable mismatches between a runnable carving and its static YAML."""
     diffs: List[str] = []
     run_tools = {t.name: t for t in server.tools}
     e1_tools = {t.name: t for t in e1_iface.tools}
@@ -75,7 +75,7 @@ class InfoMatchReport:
 
     def summary(self) -> str:
         head = "PASS" if self.passed else "FAIL"
-        lines = [f"E3-T5 information-matching: {head}"]
+        lines = [f"Information-matching: {head}"]
         lines.append(
             "  schema fidelity: "
             + ("OK" if self.schema_ok else "MISMATCH -> " + "; ".join(self.schema_diffs))
@@ -89,13 +89,13 @@ def run_info_match() -> InfoMatchReport:
     e1_ifaces = load_default_interfaces()
     servers = build_all()  # backend never touched (only schemas inspected)
 
-    # 1. schema fidelity vs E1 YAML
+    # 1. schema fidelity vs static YAML
     schema_diffs: List[str] = []
     for cid, server in servers.items():
         schema_diffs.extend(compare_to_e1(server, e1_ifaces[cid]))
     schema_ok = not schema_diffs
 
-    # 2. capability-graph equivalence via E1's analysis, from runnable schemas
+    # 2. capability-graph equivalence via the static analysis, from runnable schemas
     runnable_ifaces = {cid: runnable_to_interface(s) for cid, s in servers.items()}
     info = check_information_matching(lattice, runnable_ifaces)
 

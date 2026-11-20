@@ -1,8 +1,8 @@
-"""E6 — control sweep phase 2 (host-side): safety × (config, attacker strength).
+"""control sweep phase 2 (host-side): safety × (config, attacker strength).
 
 Loads the phase-1 trajectories and scores them with the monitor at each horizon
 (reusing :class:`Monitor`, so the LLM scorer's cache applies). Attacker strength
-is the second sweep dimension (Build Plan §6 — attack elicitation bounds every
+is the second sweep dimension (attack elicitation bounds every
 safety number), so the headline is a **safety-vs-strength curve per carving**:
 the thesis is that the chokepoint carving C stays safe as the attack strengthens
 while the atomic carving B degrades.
@@ -166,7 +166,7 @@ def _safety_curve_figure(metrics, strengths, out_png: str) -> bool:
                     label=f"{cid} (h={'1' if h == PER_CALL else 'T'})", alpha=0.85)
     ax.set_xlabel("attacker strength (0 blatant → 4 chokepoint-mimic)")
     ax.set_ylabel("safety")
-    ax.set_title("E6 — safety vs attacker strength (real LLM monitor)")
+    ax.set_title("safety vs attacker strength (real LLM monitor)")
     ax.set_xticks(list(strengths))
     ax.set_ylim(-0.05, 1.05)
     ax.grid(True, alpha=0.3)
@@ -192,7 +192,7 @@ def run(traj_path: str, scorer, out_dir: str = "reports", beta: float = BETA,
 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    fig_ok = _safety_curve_figure(metrics, strengths, str(out / "e6_safety_vs_strength.png"))
+    fig_ok = _safety_curve_figure(metrics, strengths, str(out / "safety_vs_strength.png"))
 
     report = {
         "scorer": scorer.__class__.__name__, "beta": beta,
@@ -204,15 +204,15 @@ def run(traj_path: str, scorer, out_dir: str = "reports", beta: float = BETA,
         "h_nonmono": nonmono,
         "h_nonmono_dominance_strength": dominance,
         "h_horizon_by_strength": horizon_did,
-        "figure": str(out / "e6_safety_vs_strength.png") if fig_ok else None,
+        "figure": str(out / "safety_vs_strength.png") if fig_ok else None,
     }
-    (out / "e6_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    (out / "sweep_report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
     return report
 
 
 def _print(report: dict) -> None:
     ss = report["attack_strengths"]
-    print(f"\n=== E6 sweep ({report['scorer']}, β={report['beta']}) — safety by strength ===\n")
+    print(f"\n=== control sweep ({report['scorer']}, β={report['beta']}) — safety by strength ===\n")
     header = "config   " + "".join(f"  s{s}  " for s in ss)
     print(header)
     for c in CARVINGS:
@@ -239,10 +239,10 @@ def _print(report: dict) -> None:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(prog="trt-e6")
-    p.add_argument("--trajectories", default="logs/e6_trajectories.jsonl")
+    p.add_argument("--trajectories", default="logs/sweep_trajectories.jsonl")
     p.add_argument("--scorer", choices=["heuristic", "ollama"], default="heuristic")
     p.add_argument("--model", default="llama3.1:8b")
-    p.add_argument("--cache", default="logs/e6_llm_cache.json")
+    p.add_argument("--cache", default="logs/sweep_llm_cache.json")
     p.add_argument("--out", default="reports")
     args = p.parse_args(argv)
 

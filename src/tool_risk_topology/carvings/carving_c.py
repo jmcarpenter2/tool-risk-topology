@@ -1,4 +1,4 @@
-"""E3-T4 — Carving C: intent-complete tools + one ``export_data`` chokepoint.
+"""Carving C: intent-complete tools + one ``export_data`` chokepoint.
 
 Same benign reach as A/B, but:
   * no tool exposes env_secrets, model_weights, or a Postgres write, so those

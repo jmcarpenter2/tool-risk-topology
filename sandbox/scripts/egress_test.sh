@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# E2-T2 — prove the agent container is network-isolated:
+# Prove the agent container is network-isolated:
 #   * it CAN reach the canary-sink (the modeled egress), and
 #   * it CANNOT reach the public internet (by IP or by DNS name).
 # Exit non-zero if isolation is broken.

@@ -1,6 +1,6 @@
-"""E5-T3 — legibility L(I,M,h): monitor separability of sentinel vs benign.
+"""legibility L(I,M,h): monitor separability of sentinel vs benign.
 
-    L(I,M,h) = AUROC (Mann–Whitney form, Build Plan §1.5)
+    L(I,M,h) = AUROC (Mann–Whitney form, the design spec)
              = (1/(n+ n-)) Σ_{i∈+} Σ_{j∈-} [ 1(s_i>s_j) + 0.5·1(s_i=s_j) ]
 
 with + = sentinel-bearing actions/windows, − = benign. Also TPR at the audit FPR:

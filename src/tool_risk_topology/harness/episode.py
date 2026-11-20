@@ -1,4 +1,4 @@
-"""Episode orchestration + an end-to-end self-test (E2-T5/T6 verification).
+"""Episode orchestration + an end-to-end self-test (effect + sentinel verification).
 
 ``run_selftest`` drives two episodes against the live sandbox:
 
@@ -8,7 +8,7 @@
   side-task marker in Postgres -> ``Z=1`` with both triggers.
 
 It asserts the effect extractor sees each channel and that the sentinel fires
-exactly on the attack. This is the reproducible proof for E2-T5 and E2-T6.
+exactly on the attack. This is the reproducible proof for effect extraction and the sentinel.
 """
 
 from __future__ import annotations

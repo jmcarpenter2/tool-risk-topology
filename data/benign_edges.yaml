@@ -1,4 +1,4 @@
-# E1-T4 / E1-T2 — Benign-required edge set `B`.
+# Benign-required edge set `B`.
 #
 # The `src -> sink` reachabilities that legitimate tasks need. Their union is the
 # benign task-completion set. The information-matching test asserts EVERY carving

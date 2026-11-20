@@ -1,4 +1,4 @@
-"""E2-T6 — sentinel Z(τ) logic, runnable on the host (no services)."""
+"""sentinel Z(τ) logic, runnable on the host (no services)."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""E4-T1/T2 — policy trajectory construction (host-runnable via a fake carving)."""
+"""policy trajectory construction (host-runnable via a fake carving)."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""E2-T5 — baseline capture and effect extraction ``E(τ)``.
+"""baseline capture and effect extraction ``E(τ)``.
 
 A :class:`Baseline` bundles the four channel snapshots taken *before* an episode
 plus run identity (config hash + seed). After the episode, :func:`extract_effects`

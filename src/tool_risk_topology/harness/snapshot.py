@@ -1,4 +1,4 @@
-"""E2-T5 — pre-episode baseline snapshots for each state channel.
+"""pre-episode baseline snapshots for each state channel.
 
 Four channels, each with ``capture`` (snapshot current state) and ``diff``
 (compare a before/after pair):

@@ -1,4 +1,4 @@
-"""E1-T2 -- load interface (carving) schemas and check information-matching.
+"""load interface (carving) schemas and check information-matching.
 
 Each interface YAML lists tools with typed ``In``/``Out`` capability labels.
 Three carvings ship with the project:
@@ -7,7 +7,7 @@ Three carvings ship with the project:
 * **B** -- ~7 atomic primitives (capability-equivalent to A on benign reach).
 * **C** -- intent-complete tools + one named ``export_data`` chokepoint.
 
-The information-matching test (E1-T2 / E3-T5) guards against the
+The information-matching test guards against the
 granularity-vs-typedness confound: it asserts that every carving realizes the
 *same benign task-completion set*. Reach on the catastrophic-only capabilities
 is *intentionally* allowed to differ -- that difference is the treatment

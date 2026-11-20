@@ -1,6 +1,6 @@
-"""E3-T1 — the shared capability backend.
+"""the shared capability backend.
 
-One implementation of every primitive capability, against the E2 sandbox
+One implementation of every primitive capability, against the sandbox
 services. All three carvings (A/B/C) are thin typed facades over *this* object,
 so any difference between them is interface topology, not implementation.
 
